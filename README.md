@@ -1,6 +1,6 @@
 # Truthfulness Detector
 
-Analyzes scientific papers to find uncertain claims and generate research ideas.
+Analyzes scientific papers to find uncertain claims and generate seed research ideas.
 
 ## Folders
 
