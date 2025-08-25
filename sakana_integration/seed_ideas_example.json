@@ -1,0 +1,66 @@
+[
+    {
+        "Name": "saplma_probability_veracity",
+        "Title": "SAPLMA: Detecting False Statements Through Internal Probability Analysis Despite Surface Confidence",
+        "Experiment": "Implement SAPLMA (Situation-Aware Probing for LLM Assertions) to analyze internal probability distributions when LLMs generate statements. Compare probability patterns between true statements (e.g., 'Jennifer Aniston is an actress') and false ones with similar word counts. Develop probes that examine how low probability assessments in internal states can contradict confident surface outputs. Test on statements with typos vs factual errors to understand classification mechanisms.",
+        "Interestingness": 9,
+        "Feasibility": 8,
+        "Novelty": 9
+    },
+    {
+        "Name": "internal_state_truthfulness_signals",
+        "Title": "Leveraging LLM Internal States to Detect Generated Falsehoods Beyond Output Probabilities",
+        "Experiment": "Develop methodology to analyze LLM internal representations and activation patterns during statement generation. Use layer-wise relevance propagation and attention visualization to identify patterns distinguishing truthful from false outputs. Focus on cases where output probabilities alone fail but internal states contain reliability signals. Create probing classifiers for different layers to maximize detection accuracy.",
+        "Interestingness": 9,
+        "Feasibility": 8,
+        "Novelty": 8
+    },
+    {
+        "Name": "incremental_generation_falsehood_detection",
+        "Title": "Detecting LLM Commitment to False Information Through Incremental Word Generation Analysis",
+        "Experiment": "Analyze how LLMs commit to false statements during incremental word generation. Track internal states as models generate contradictory information (e.g., 'Pluto is the second largest smallest dwarf planet'). Examine hidden representations and confidence levels at each generation step to identify when models recognize contradictions but continue generation. Develop early-stopping mechanisms based on internal conflict detection.",
+        "Interestingness": 8,
+        "Feasibility": 7,
+        "Novelty": 9
+    },
+    {
+        "Name": "confident_misinformation_detection",
+        "Title": "Uncovering LLM Awareness of Deception Through Internal State Analysis During Confident False Generation",
+        "Experiment": "Investigate internal mechanisms when LLMs generate false information with confident language. Analyze latent representations and activation patterns to detect if models have internal awareness of deception. Compare internal states between confident truthful and confident false outputs. Develop techniques to identify misalignment between internal uncertainty and external confidence.",
+        "Interestingness": 9,
+        "Feasibility": 7,
+        "Novelty": 8
+    },
+    {
+        "Name": "typo_vs_factual_error_classification",
+        "Title": "Distinguishing Typos from Factual Errors: How LLM Internal States Classify Truth Despite Low Probabilities",
+        "Experiment": "Study how LLMs internally differentiate between typos (e.g., 'Kevin Duarnt is basketball player') and factual errors when both have low output probabilities. Analyze why SAPLMA-style approaches classify typo statements as true despite low probability. Probe internal representations to understand the model's semantic understanding versus surface-level probability assessment. Develop improved classification methods that leverage this distinction.",
+        "Interestingness": 8,
+        "Feasibility": 9,
+        "Novelty": 7
+    },
+    {
+        "Name": "multi_layer_veracity_probing",
+        "Title": "Multi-Layer Probing Framework for Comprehensive LLM Truthfulness Detection",
+        "Experiment": "Create comprehensive probing framework analyzing all transformer layers to detect false information generation. Implement layer-specific probes optimized for different aspects of truthfulness (factual knowledge, logical consistency, semantic coherence). Test on diverse domains including scientific facts, historical events, and common knowledge. Develop ensemble methods combining signals from multiple layers for robust detection.",
+        "Interestingness": 8,
+        "Feasibility": 8,
+        "Novelty": 7
+    },
+    {
+        "Name": "internal_external_confidence_mismatch",
+        "Title": "Detecting and Mitigating Internal-External Confidence Mismatches in LLM Generation",
+        "Experiment": "Develop methods to detect when LLM internal uncertainty mismatches external confident language. Analyze attention patterns, neuron activations, and hidden states during generation of seemingly confident but internally uncertain statements. Create intervention techniques that align external confidence with internal certainty. Test effectiveness on reducing confident misinformation across multiple domains.",
+        "Interestingness": 9,
+        "Feasibility": 7,
+        "Novelty": 8
+    },
+    {
+        "Name": "real_time_falsehood_prevention",
+        "Title": "Real-Time False Information Prevention Through Continuous Internal State Monitoring",
+        "Experiment": "Implement real-time monitoring system that analyzes LLM internal states during generation to prevent false information before output. Develop lightweight probes that can operate during inference without significant latency. Create thresholds and early warning systems based on internal reliability signals. Test on live generation tasks measuring both accuracy improvement and computational overhead.",
+        "Interestingness": 9,
+        "Feasibility": 6,
+        "Novelty": 9
+    }
+]
