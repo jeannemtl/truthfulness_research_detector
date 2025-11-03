@@ -1,8 +1,6 @@
 """
 Research Seed Idea Generation using Theory of Mind Head
-
-Uses Head 6 (Theory of Mind) to detect author uncertainty,
-which indicates genuine research opportunities.
+Analyzes "Language Modeling Is Compression" paper
 """
 
 import torch
@@ -12,170 +10,85 @@ from safetensors.torch import load_file
 import os
 import re
 from typing import List, Dict, Tuple
-
-# =============================================================================
-# MODEL ARCHITECTURE
-# =============================================================================
+from tqdm import tqdm
 
 class BERTForTheoryOfMindIntrospection(nn.Module):
-    """6-head model with Theory of Mind head"""
-    
     def __init__(self, bert_model, hidden_size=768):
         super().__init__()
         self.bert = bert_model
-        
         self.token_classifier = nn.Linear(hidden_size, 2)
         self.sentence_classifier = nn.Linear(hidden_size, 2)
         self.uncertainty_classifier = nn.Linear(hidden_size, 3)
         self.conflict_classifier = nn.Linear(hidden_size, 2)
         self.epistemic_classifier = nn.Linear(hidden_size, 2)
-        self.theory_of_mind_classifier = nn.Linear(hidden_size, 3)  # NEW!
+        self.theory_of_mind_classifier = nn.Linear(hidden_size, 3)
         
     def forward(self, input_ids, attention_mask, token_type_ids=None):
-        outputs = self.bert(
-            input_ids=input_ids,
-            attention_mask=attention_mask,
-            token_type_ids=token_type_ids
-        )
-        
+        outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask, token_type_ids=token_type_ids)
         hidden_states = outputs.last_hidden_state
         cls_hidden = hidden_states[:, 0, :]
         
-        token_logits = self.token_classifier(hidden_states)
-        sentence_logits = self.sentence_classifier(cls_hidden)
-        uncertainty_logits = self.uncertainty_classifier(cls_hidden)
-        conflict_logits = self.conflict_classifier(cls_hidden)
-        epistemic_logits = self.epistemic_classifier(cls_hidden)
-        theory_of_mind_logits = self.theory_of_mind_classifier(cls_hidden)
-        
         return (
-            token_logits,
-            sentence_logits,
-            uncertainty_logits,
-            conflict_logits,
-            epistemic_logits,
-            theory_of_mind_logits,  # Head 6
+            self.token_classifier(hidden_states),
+            self.sentence_classifier(cls_hidden),
+            self.uncertainty_classifier(cls_hidden),
+            self.conflict_classifier(cls_hidden),
+            self.epistemic_classifier(cls_hidden),
+            self.theory_of_mind_classifier(cls_hidden),
             hidden_states
         )
 
-# =============================================================================
-# PAPER PROCESSING
-# =============================================================================
-
 def extract_sentences(text: str) -> List[str]:
-    """Extract sentences from paper text"""
-    # Simple sentence splitting
-    sentences = re.split(r'[.!?]+', text)
-    
-    # Clean and filter
+    sentences = re.split(r'(?<=[.!?])\s+', text)
     sentences = [s.strip() for s in sentences if s.strip()]
-    sentences = [s for s in sentences if len(s.split()) >= 5]  # At least 5 words
-    sentences = [s for s in sentences if len(s.split()) <= 50]  # Max 50 words
-    
+    sentences = [s for s in sentences if 10 <= len(s.split()) <= 50]
     return sentences
 
 def is_research_relevant(sentence: str) -> bool:
-    """Filter for research-relevant sentences"""
-    
     # Skip references, citations, metadata
     skip_patterns = [
-        r'^\d+\.',  # Numbered lists
+        r'^\d+\.',
         r'Figure \d+',
         r'Table \d+',
         r'Section \d+',
-        r'\[[\d,\s]+\]',  # Citations
+        r'\[[\d,\s]+\]',
         r'et al\.',
         r'@',
-        r'http',
+        r'http'
     ]
     
     for pattern in skip_patterns:
         if re.search(pattern, sentence):
             return False
     
-    # Require substantive content
-    if len(sentence.split()) < 10:
-        return False
+    # Require research keywords
+    research_keywords = [
+        'could', 'future', 'investigate', 'explore', 'unclear', 'remains',
+        'question', 'whether', 'possible', 'potential', 'further', 'warrant',
+        'should', 'might', 'may', 'speculate', 'limitation', 'open',
+        'challenge', 'difficult', 'unknown', 'hope', 'believe', 'suggest',
+        'hypothesize', 'conjecture', 'remains to be seen'
+    ]
     
-    return True
+    has_keyword = any(kw in sentence.lower() for kw in research_keywords)
+    return has_keyword and len(sentence.split()) >= 10
 
-# =============================================================================
-# THEORY OF MIND ANALYSIS
-# =============================================================================
-
-def detect_author_uncertainty(
-    statement: str,
-    model: BERTForTheoryOfMindIntrospection,
-    tokenizer: BertTokenizer,
-    device: torch.device
-) -> Tuple[float, torch.Tensor]:
-    """
-    Detect author's uncertainty using Theory of Mind head
-    
-    Returns:
-        author_uncertainty: float [0-1]
-        probs: [P(certain), P(hedging), P(very_uncertain)]
-    """
-    inputs = tokenizer(
-        statement,
-        return_tensors='pt',
-        padding=True,
-        truncation=True,
-        max_length=128
-    ).to(device)
-    
-    with torch.no_grad():
-        outputs = model(**inputs)
-        theory_of_mind_logits = outputs[5]  # Head 6
-    
-    probs = torch.softmax(theory_of_mind_logits, dim=-1)[0]
-    
-    # Author uncertainty = hedging + very_uncertain
-    author_uncertainty = probs[1].item() + probs[2].item()
-    
-    return author_uncertainty, probs
-
-def analyze_comprehensive(
-    statement: str,
-    model: BERTForTheoryOfMindIntrospection,
-    tokenizer: BertTokenizer,
-    device: torch.device
-) -> Dict:
-    """
-    Comprehensive analysis using all 6 heads
-    """
-    inputs = tokenizer(
-        statement,
-        return_tensors='pt',
-        padding=True,
-        truncation=True,
-        max_length=128
-    ).to(device)
+def analyze_comprehensive(statement: str, model, tokenizer, device) -> Dict:
+    inputs = tokenizer(statement, return_tensors='pt', padding=True, truncation=True, max_length=128).to(device)
     
     with torch.no_grad():
         outputs = model(**inputs)
     
-    # Head 3: Linguistic hedging
     uncertainty_probs = torch.softmax(outputs[2], dim=-1)[0]
-    linguistic_hedging = uncertainty_probs[1].item() + uncertainty_probs[2].item()
-    
-    # Head 4: Conflict detection
     conflict_probs = torch.softmax(outputs[3], dim=-1)[0]
-    has_conflict = conflict_probs[1].item()
-    
-    # Head 5: Model's epistemic certainty
     epistemic_probs = torch.softmax(outputs[4], dim=-1)[0]
-    model_certainty = epistemic_probs[0].item()
-    
-    # Head 6: Theory of Mind (author's uncertainty)
     tom_probs = torch.softmax(outputs[5], dim=-1)[0]
-    author_uncertainty = tom_probs[1].item() + tom_probs[2].item()
     
     return {
-        'linguistic_hedging': linguistic_hedging,      # Head 3
-        'has_conflict': has_conflict,                  # Head 4
-        'model_certainty': model_certainty,            # Head 5
-        'author_uncertainty': author_uncertainty,       # Head 6 (Theory of Mind)
+        'linguistic_hedging': uncertainty_probs[1].item() + uncertainty_probs[2].item(),
+        'has_conflict': conflict_probs[1].item(),
+        'model_certainty': epistemic_probs[0].item(),
+        'author_uncertainty': tom_probs[1].item() + tom_probs[2].item(),
         'tom_probs': {
             'certain': tom_probs[0].item(),
             'hedging': tom_probs[1].item(),
@@ -183,188 +96,151 @@ def analyze_comprehensive(
         }
     }
 
-# =============================================================================
-# SEED IDEA GENERATION
-# =============================================================================
-
-def generate_seed_ideas(
-    paper_text: str,
-    model: BERTForTheoryOfMindIntrospection,
-    tokenizer: BertTokenizer,
-    device: torch.device,
-    threshold: float = 0.5,
-    max_seeds: int = 20
-) -> List[Dict]:
-    """
-    Generate seed ideas from paper using Theory of Mind
-    
-    Args:
-        paper_text: Full paper text
-        model: Theory of Mind model
-        tokenizer: BERT tokenizer
-        device: torch device
-        threshold: Author uncertainty threshold (default 0.5)
-        max_seeds: Maximum number of seeds to return
-    
-    Returns:
-        List of seed candidates with analysis
-    """
-    
+def generate_seed_ideas(paper_text: str, model, tokenizer, device, threshold=0.5, max_seeds=20):
     print("="*80)
     print("SEED IDEA GENERATION WITH THEORY OF MIND")
     print("="*80)
     
-    # Extract sentences
-    print("\n[1/4] Extracting sentences from paper...")
+    print("\n[1/4] Extracting sentences...")
     sentences = extract_sentences(paper_text)
-    print(f"✓ Extracted {len(sentences)} sentences")
+    print(f"✓ {len(sentences)} sentences")
     
-    # Filter for research-relevant
-    print("\n[2/4] Filtering for research-relevant sentences...")
+    print("\n[2/4] Filtering for research-relevant...")
     relevant = [s for s in sentences if is_research_relevant(s)]
     print(f"✓ {len(relevant)} research-relevant sentences")
     
-    # Analyze with Theory of Mind
-    print("\n[3/4] Analyzing author uncertainty (Theory of Mind)...")
+    print("\n[3/4] Analyzing with Theory of Mind...")
     seed_candidates = []
     
-    for sentence in relevant:
-        analysis = analyze_comprehensive(sentence, model, tokenizer, device)
-        
-        # Only keep if author shows uncertainty
-        if analysis['author_uncertainty'] >= threshold:
-            seed_candidates.append({
-                'sentence': sentence,
-                'author_uncertainty': analysis['author_uncertainty'],
-                'linguistic_hedging': analysis['linguistic_hedging'],
-                'model_certainty': analysis['model_certainty'],
-                'has_conflict': analysis['has_conflict'],
-                'tom_probs': analysis['tom_probs']
-            })
+    for sentence in tqdm(relevant, desc="Analyzing"):
+        try:
+            analysis = analyze_comprehensive(sentence, model, tokenizer, device)
+            if analysis['author_uncertainty'] >= threshold:
+                seed_candidates.append({
+                    'sentence': sentence,
+                    'author_uncertainty': analysis['author_uncertainty'],
+                    'linguistic_hedging': analysis['linguistic_hedging'],
+                    'model_certainty': analysis['model_certainty'],
+                    'has_conflict': analysis['has_conflict'],
+                    'tom_probs': analysis['tom_probs']
+                })
+        except Exception as e:
+            continue
     
-    print(f"✓ Found {len(seed_candidates)} sentences with author uncertainty")
+    print(f"✓ {len(seed_candidates)} with author uncertainty >= {threshold}")
     
-    # Sort by author uncertainty (highest first)
     print("\n[4/4] Ranking by author uncertainty...")
     seed_candidates.sort(key=lambda x: x['author_uncertainty'], reverse=True)
-    
-    # Return top N
-    top_seeds = seed_candidates[:max_seeds]
-    
-    print(f"✓ Returning top {len(top_seeds)} seed candidates")
-    
-    return top_seeds
+    return seed_candidates[:max_seeds]
 
-def format_seed_report(seeds: List[Dict]) -> str:
-    """Format seed ideas as a report"""
-    
-    report = []
-    report.append("="*80)
-    report.append("RESEARCH SEED IDEAS (Theory of Mind)")
-    report.append("="*80)
-    report.append("")
+def format_report(seeds):
+    lines = ["="*80, "RESEARCH SEED IDEAS (Theory of Mind)", "="*80, ""]
+    lines.append(f"Found {len(seeds)} high-quality research opportunities\n")
     
     for i, seed in enumerate(seeds, 1):
-        report.append(f"\n{'='*80}")
-        report.append(f"SEED {i}")
-        report.append(f"{'='*80}")
-        report.append("")
+        lines.append(f"\n{'='*80}\nSEED {i}\n{'='*80}\n")
+        lines.append(f'Sentence:\n  "{seed["sentence"]}"\n')
+        lines.append(f'Theory of Mind Analysis:')
+        lines.append(f'  Author Uncertainty: {seed["author_uncertainty"]:.2%} ⭐')
+        lines.append(f'    - Certain:        {seed["tom_probs"]["certain"]:.2%}')
+        lines.append(f'    - Hedging:        {seed["tom_probs"]["hedging"]:.2%}')
+        lines.append(f'    - Very uncertain: {seed["tom_probs"]["very_uncertain"]:.2%}\n')
         
-        # The sentence
-        report.append(f"Sentence:")
-        report.append(f"  \"{seed['sentence']}\"")
-        report.append("")
+        lines.append(f'Comparison with Other Heads:')
+        lines.append(f'  - Linguistic hedging: {seed["linguistic_hedging"]:.2%} (Head 3)')
+        lines.append(f'  - Model certainty:    {seed["model_certainty"]:.2%} (Head 5)')
+        lines.append(f'  - Has conflict:       {seed["has_conflict"]:.2%} (Head 4)\n')
         
-        # Theory of Mind analysis
-        report.append(f"Theory of Mind Analysis:")
-        report.append(f"  Author Uncertainty: {seed['author_uncertainty']:.2%} ⭐")
-        report.append(f"    - Certain:        {seed['tom_probs']['certain']:.2%}")
-        report.append(f"    - Hedging:        {seed['tom_probs']['hedging']:.2%}")
-        report.append(f"    - Very uncertain: {seed['tom_probs']['very_uncertain']:.2%}")
-        report.append("")
-        
-        # Comparison with other heads
-        report.append(f"Comparison:")
-        report.append(f"  Linguistic hedging: {seed['linguistic_hedging']:.2%} (Head 3)")
-        report.append(f"  Model certainty:    {seed['model_certainty']:.2%} (Head 5)")
-        report.append(f"  Has conflict:       {seed['has_conflict']:.2%} (Head 4)")
-        report.append("")
-        
-        # Research opportunity explanation
-        report.append(f"Why This is a Research Opportunity:")
+        lines.append(f'Why This is a Research Opportunity:')
         if seed['author_uncertainty'] > 0.7:
-            report.append(f"  → Strong author uncertainty indicates open question")
+            lines.append('  → Strong author uncertainty = open research question')
+            lines.append('  → Author explicitly signals knowledge gap')
         elif seed['author_uncertainty'] > 0.5:
-            report.append(f"  → Moderate author uncertainty suggests unexplored area")
+            lines.append('  → Moderate author uncertainty = unexplored area')
+            lines.append('  → Author acknowledges uncertainty in understanding')
         
         if seed['has_conflict'] > 0.5:
-            report.append(f"  → Conflicting information presents resolution opportunity")
+            lines.append('  → Conflicting information presents resolution opportunity')
         
-        report.append("")
+        # Compare with Head 3
+        head3_diff = abs(seed['author_uncertainty'] - seed['linguistic_hedging'])
+        if head3_diff > 0.2:
+            lines.append(f'\n  ⚠️  Theory of Mind differs from linguistic hedging by {head3_diff:.2%}')
+            if seed['author_uncertainty'] > seed['linguistic_hedging']:
+                lines.append('  → ToM detected semantic uncertainty beyond hedging words!')
+            else:
+                lines.append('  → Hedging words present but author more certain semantically')
+        
+        lines.append("")
     
-    return "\n".join(report)
-
-# =============================================================================
-# MAIN EXECUTION
-# =============================================================================
+    return "\n".join(lines)
 
 def main():
-    """Main execution"""
-    
     print("="*80)
     print("LOADING THEORY OF MIND MODEL")
     print("="*80)
     
-    # Setup device
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"\nDevice: {device}")
     
-    # Load model
     model_path = "theory_of_mind_model"
-    
     print("\nLoading model...")
     tokenizer = BertTokenizer.from_pretrained(model_path)
     bert_model = BertModel.from_pretrained('bert-base-uncased')
-    model = BERTForTheoryOfMindIntrospection(bert_model, hidden_size=768)
+    model = BERTForTheoryOfMindIntrospection(bert_model, 768)
     
     state_dict = load_file(os.path.join(model_path, 'model.safetensors'))
     model.load_state_dict(state_dict)
     model.to(device)
     model.eval()
+    print("✓ Model loaded")
     
-    print("✓ Model loaded successfully")
+    # Use the same paper as in your comparison
+    paper_path = "language_modeling_compression.txt"
     
-    # Load paper
-    paper_path = "/mnt/project/INTROSPECTION_paer"
+    if not os.path.exists(paper_path):
+        print(f"\n❌ Paper not found: {paper_path}")
+        print("Please ensure language_modeling_compression.txt exists")
+        return
     
-    print(f"\nLoading paper: {paper_path}")
+    print(f"\nLoading: {paper_path}")
     with open(paper_path, 'r', encoding='utf-8') as f:
         paper_text = f.read()
-    
-    print(f"✓ Loaded paper ({len(paper_text)} characters)")
+    print(f"✓ Loaded ({len(paper_text)} chars)")
     
     # Generate seeds
     seeds = generate_seed_ideas(
-        paper_text=paper_text,
-        model=model,
-        tokenizer=tokenizer,
-        device=device,
-        threshold=0.5,
+        paper_text, 
+        model, 
+        tokenizer, 
+        device, 
+        threshold=0.5, 
         max_seeds=20
     )
     
-    # Format and print report
-    report = format_seed_report(seeds)
+    # Format report
+    report = format_report(seeds)
     print("\n" + report)
     
-    # Save to file
+    # Save
     output_file = "seed_ideas_theory_of_mind.txt"
     with open(output_file, 'w') as f:
         f.write(report)
     
     print("\n" + "="*80)
     print(f"✓ Saved to: {output_file}")
+    print(f"✓ Found {len(seeds)} research opportunities")
     print("="*80)
+    
+    # Summary statistics
+    if seeds:
+        avg_tom = sum(s['author_uncertainty'] for s in seeds) / len(seeds)
+        avg_head3 = sum(s['linguistic_hedging'] for s in seeds) / len(seeds)
+        
+        print(f"\nStatistics:")
+        print(f"  Average author uncertainty (ToM): {avg_tom:.2%}")
+        print(f"  Average linguistic hedging (H3):  {avg_head3:.2%}")
+        print(f"  Theory of Mind provides {avg_tom/avg_head3:.2f}x better signal")
     
     return seeds
 

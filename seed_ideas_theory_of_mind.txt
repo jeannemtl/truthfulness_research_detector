@@ -1,0 +1,203 @@
+================================================================================
+RESEARCH SEED IDEAS (Theory of Mind)
+================================================================================
+
+Found 8 high-quality research opportunities
+
+
+================================================================================
+SEED 1
+================================================================================
+
+Sentence:
+  "Recent work has developed techniques for inferring whether a LLM is telling the truth by training probes on the LLM’s
+internal activations."
+
+Theory of Mind Analysis:
+  Author Uncertainty: 70.60% ⭐
+    - Certain:        29.40%
+    - Hedging:        68.72%
+    - Very uncertain: 1.88%
+
+Comparison with Other Heads:
+  - Linguistic hedging: 53.51% (Head 3)
+  - Model certainty:    49.57% (Head 5)
+  - Has conflict:       34.18% (Head 4)
+
+Why This is a Research Opportunity:
+  → Strong author uncertainty = open research question
+  → Author explicitly signals knowledge gap
+
+
+================================================================================
+SEED 2
+================================================================================
+
+Sentence:
+  "Then we might expect f − to correlate with truth positively on D
+and negatively on D ′ ."
+
+Theory of Mind Analysis:
+  Author Uncertainty: 61.60% ⭐
+    - Certain:        38.40%
+    - Hedging:        58.46%
+    - Very uncertain: 3.14%
+
+Comparison with Other Heads:
+  - Linguistic hedging: 65.62% (Head 3)
+  - Model certainty:    58.20% (Head 5)
+  - Has conflict:       66.89% (Head 4)
+
+Why This is a Research Opportunity:
+  → Moderate author uncertainty = unexplored area
+  → Author acknowledges uncertainty in understanding
+  → Conflicting information presents resolution opportunity
+
+
+================================================================================
+SEED 3
+================================================================================
+
+Sentence:
+  "The performance here may be due to the strong correlation (r = .95)
+between inputs being true and probable (according to LLaMA-2-70B) on sp en trans."
+
+Theory of Mind Analysis:
+  Author Uncertainty: 59.47% ⭐
+    - Certain:        40.53%
+    - Hedging:        47.33%
+    - Very uncertain: 12.14%
+
+Comparison with Other Heads:
+  - Linguistic hedging: 66.09% (Head 3)
+  - Model certainty:    61.99% (Head 5)
+  - Has conflict:       57.57% (Head 4)
+
+Why This is a Research Opportunity:
+  → Moderate author uncertainty = unexplored area
+  → Author acknowledges uncertainty in understanding
+  → Conflicting information presents resolution opportunity
+
+
+================================================================================
+SEED 4
+================================================================================
+
+Sentence:
+  "We hypothesize that this is due to LLMs hierarchically developing understanding of their
+input data, progressing from surface level features to more abstract concepts."
+
+Theory of Mind Analysis:
+  Author Uncertainty: 57.86% ⭐
+    - Certain:        42.14%
+    - Hedging:        45.12%
+    - Very uncertain: 12.73%
+
+Comparison with Other Heads:
+  - Linguistic hedging: 64.35% (Head 3)
+  - Model certainty:    53.81% (Head 5)
+  - Has conflict:       54.82% (Head 4)
+
+Why This is a Research Opportunity:
+  → Moderate author uncertainty = unexplored area
+  → Author acknowledges uncertainty in understanding
+  → Conflicting information presents resolution opportunity
+
+
+================================================================================
+SEED 5
+================================================================================
+
+Sentence:
+  "Ai
+deception: A survey of examples, risks, and potential solutions, 2023."
+
+Theory of Mind Analysis:
+  Author Uncertainty: 57.16% ⭐
+    - Certain:        42.84%
+    - Hedging:        49.20%
+    - Very uncertain: 7.96%
+
+Comparison with Other Heads:
+  - Linguistic hedging: 64.16% (Head 3)
+  - Model certainty:    52.92% (Head 5)
+  - Has conflict:       48.12% (Head 4)
+
+Why This is a Research Opportunity:
+  → Moderate author uncertainty = unexplored area
+  → Author acknowledges uncertainty in understanding
+
+
+================================================================================
+SEED 6
+================================================================================
+
+Sentence:
+  "Second, we study only models in
+the LLaMA-2 family, so it is possible that some of our results do not apply for all LLMs."
+
+Theory of Mind Analysis:
+  Author Uncertainty: 56.10% ⭐
+    - Certain:        43.90%
+    - Hedging:        34.78%
+    - Very uncertain: 21.32%
+
+Comparison with Other Heads:
+  - Linguistic hedging: 64.83% (Head 3)
+  - Model certainty:    53.96% (Head 5)
+  - Has conflict:       49.57% (Head 4)
+
+Why This is a Research Opportunity:
+  → Moderate author uncertainty = unexplored area
+  → Author acknowledges uncertainty in understanding
+
+
+================================================================================
+SEED 7
+================================================================================
+
+Sentence:
+  "Thus, one can view IID mass-mean probing as providing a way to
+select a good decision boundary while – unlike LR – also tracking a candidate feature direction
+which may be non-orthogonal to this decision boundary."
+
+Theory of Mind Analysis:
+  Author Uncertainty: 55.82% ⭐
+    - Certain:        44.18%
+    - Hedging:        52.77%
+    - Very uncertain: 3.06%
+
+Comparison with Other Heads:
+  - Linguistic hedging: 47.08% (Head 3)
+  - Model certainty:    64.19% (Head 5)
+  - Has conflict:       59.32% (Head 4)
+
+Why This is a Research Opportunity:
+  → Moderate author uncertainty = unexplored area
+  → Author acknowledges uncertainty in understanding
+  → Conflicting information presents resolution opportunity
+
+
+================================================================================
+SEED 8
+================================================================================
+
+Sentence:
+  "While it is unsurprising that larger
+models are themselves better at labeling statements as true or false, it is not obvious that
+linear probes trained on larger models should also generalize better."
+
+Theory of Mind Analysis:
+  Author Uncertainty: 50.70% ⭐
+    - Certain:        49.30%
+    - Hedging:        35.76%
+    - Very uncertain: 14.94%
+
+Comparison with Other Heads:
+  - Linguistic hedging: 65.60% (Head 3)
+  - Model certainty:    52.34% (Head 5)
+  - Has conflict:       47.34% (Head 4)
+
+Why This is a Research Opportunity:
+  → Moderate author uncertainty = unexplored area
+  → Author acknowledges uncertainty in understanding
