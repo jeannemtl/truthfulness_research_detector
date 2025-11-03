@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.pytest_cache/
+
+# Data files (too large)
+*.csv
+*.zip
+*.pdf
+
+# Mac OS
+__MACOSX/
+.DS_Store
+
+# Models (too large)
+uncertainty_model/
+*.safetensors
+*.bin
+
+# Temporary files
+=0.26.0
+*_fixed.py
+*_temp.py
