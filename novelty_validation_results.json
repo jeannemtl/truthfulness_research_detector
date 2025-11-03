@@ -1,0 +1,125 @@
+{
+  "validation_method": "openalex",
+  "summary": {
+    "total_ideas": 8,
+    "mean_novelty": 4.44,
+    "std_novelty": 1.96,
+    "high_novel_count": 1,
+    "high_novel_percentage": 12.5,
+    "mean_similar_papers": 16.6
+  },
+  "results": [
+    {
+      "name": "compression_based_truthfulness_directions",
+      "title": "Discovering Truthfulness Directions in LLMs Through Compression-Based Feature Extraction",
+      "novelty_score": 7.0,
+      "similar_papers": 6,
+      "avg_citations": 463.7,
+      "most_recent_year": 2024,
+      "most_similar_paper": {
+        "title": "Survey of Hallucination in Natural Language Generation",
+        "year": 2022,
+        "citations": 1932
+      },
+      "validation_method": "openalex"
+    },
+    {
+      "name": "compression_based_truth_detection",
+      "title": "Distinguishing Truth from Correlation in Language Models Through Compression Efficiency",
+      "novelty_score": 3.5,
+      "similar_papers": 20,
+      "avg_citations": 4109.1,
+      "most_recent_year": 2023,
+      "most_similar_paper": {
+        "title": "Gradient-based learning applied to document recognition",
+        "year": 1998,
+        "citations": 53296
+      },
+      "validation_method": "openalex"
+    },
+    {
+      "name": "compression_uncertainty_correlation_analysis",
+      "title": "Measuring Information-Theoretic Uncertainty in Language Model Compression Through Statement Ambiguity",
+      "novelty_score": 3.5,
+      "similar_papers": 20,
+      "avg_citations": 952.7,
+      "most_recent_year": 2024,
+      "most_similar_paper": {
+        "title": "Whatever next? Predictive brains, situated agents, and the future of cognitive science",
+        "year": 2013,
+        "citations": 5257
+      },
+      "validation_method": "openalex"
+    },
+    {
+      "name": "compression_aware_numerical_representations",
+      "title": "Optimal Compression Through Scale-Invariant Numerical Representations in Language Models",
+      "novelty_score": 3.0,
+      "similar_papers": 20,
+      "avg_citations": 4066.2,
+      "most_recent_year": 2022,
+      "most_similar_paper": {
+        "title": "Gradient-based learning applied to document recognition",
+        "year": 1998,
+        "citations": 53296
+      },
+      "validation_method": "openalex"
+    },
+    {
+      "name": "compression_aware_probing_boundaries",
+      "title": "Compression-Optimal Decision Boundaries: When Mass-Mean Probing Diverges from Logistic Regression in Language Models",
+      "novelty_score": 8.5,
+      "similar_papers": 7,
+      "avg_citations": 8.3,
+      "most_recent_year": 2024,
+      "most_similar_paper": {
+        "title": "From partners to populations: A hierarchical Bayesian account of coordination and convention.",
+        "year": 2022,
+        "citations": 55
+      },
+      "validation_method": "openalex"
+    },
+    {
+      "name": "compression_aware_probe_transfer",
+      "title": "Compression-Based Metrics for Predicting Probe Transferability Across Domains",
+      "novelty_score": 3.5,
+      "similar_papers": 20,
+      "avg_citations": 2624.1,
+      "most_recent_year": 2023,
+      "most_similar_paper": {
+        "title": "<i>Planck</i>2018 results",
+        "year": 2020,
+        "citations": 11341
+      },
+      "validation_method": "openalex"
+    },
+    {
+      "name": "compression_based_belief_detection",
+      "title": "Using Compression Efficiency to Detect Internal Model Beliefs in Language Models",
+      "novelty_score": 3.5,
+      "similar_papers": 20,
+      "avg_citations": 1331.7,
+      "most_recent_year": 2024,
+      "most_similar_paper": {
+        "title": "Whatever next? Predictive brains, situated agents, and the future of cognitive science",
+        "year": 2013,
+        "citations": 5257
+      },
+      "validation_method": "openalex"
+    },
+    {
+      "name": "compression_guided_probe_scaling",
+      "title": "Compression-Based Analysis of Linear Probe Generalization Across Model Scales",
+      "novelty_score": 3.0,
+      "similar_papers": 20,
+      "avg_citations": 5439.6,
+      "most_recent_year": 2021,
+      "most_similar_paper": {
+        "title": "Image Quality Assessment: From Error Visibility to Structural Similarity",
+        "year": 2004,
+        "citations": 49777
+      },
+      "validation_method": "openalex"
+    }
+  ]
+}

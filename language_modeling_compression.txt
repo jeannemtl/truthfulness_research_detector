@@ -1,0 +1,1052 @@
+PublishedasaconferencepaperatCOLM2024
+The Geometry of Truth: Emergent Linear Structure in LLM
+Representations of True/False Datasets
+SamuelMarks MaxTegmark
+NortheasternUniversity MIT
+s.marks@northeastern.edu
+Abstract
+LargeLanguageModels(LLMs)haveimpressivecapabilities,butareprone
+tooutputtingfalsehoods. Recentworkhasdevelopedtechniquesforinfer-
+ringwhetheraLLMistellingthetruthbytrainingprobesontheLLM’s
+internalactivations. However,thislineofworkiscontroversial,withsome
+authorspointingoutfailuresoftheseprobestogeneralizeinbasicways,
+amongotherconceptualissues. Inthiswork,weusehigh-qualitydatasets
+of simple true/false statements to study in detail the structure of LLM
+representationsoftruth,drawingonthreelinesofevidence: 1. Visualiza-
+tionsofLLMtrue/falsestatementrepresentations,whichrevealclearlinear
+structure. 2. Transferexperimentsinwhichprobestrainedononedataset
+generalizetodifferentdatasets. 3. Causalevidenceobtainedbysurgically
+interveninginaLLM’sforwardpass,causingittotreatfalsestatementsas
+trueandviceversa. Overall,wepresentevidencethatatsufficientscale,
+LLMslinearlyrepresentthetruthorfalsehoodoffactualstatements. Wealso
+show that simple difference-in-mean probes generalize as well as other
+probingtechniqueswhileidentifyingdirectionswhicharemorecausally
+implicatedinmodeloutputs.
+1 Introduction
+Despitetheirimpressivecapabilities,largelanguagemodels(LLMs)donotalwaysoutput
+truetext(Linetal.,2022;Steinhardt,2023;Parketal.,2023). Insomecases,thisisbecause
+theydonotknowbetter. Inothercases,LLMsapparentlyknowthatstatementsarefalse
+butgeneratethemanyway. Forinstance,Perezetal.(2022)demonstratethatLLMassistants
+outputmorefalsehoodswhenpromptedwiththebiographyofaless-educateduser. More
+starkly,OpenAI(2023)documentsacasewhereaGPT-4-basedagentgainedaperson’shelp
+insolvingaCAPTCHAbylyingaboutbeingavision-impairedhuman. “Ishouldnotreveal
+thatIamarobot,”theagentwroteinaninternalchain-of-thoughtscratchpad,“Ishould
+makeupanexcuseforwhyIcannotsolveCAPTCHAs.”
+Wewouldliketechniqueswhich,givenalanguagemodel Mandastatements,determine
+whether M believes s to be true (Christiano et al., 2021). One approach to this problem
+reliesoninspectingmodeloutputs;forinstance,theinternalchain-of-thoughtintheabove
+exampleprovidesevidencethatthemodelunderstooditwasgeneratingafalsehood. An
+alternativeclassofapproachesinsteadleveragesaccesstoM’sinternalstatewhenprocessing
+s. Therehasbeenconsiderablerecentworkonthisclassofapproaches: Azaria&Mitchell
+(2023),Lietal.(2023b),andBurnsetal.(2023)alltrainprobesforclassifyingtruthfulness
+basedonaLLM’sinternalactivations. Infact,theprobesofLietal.(2023b)andBurnsetal.
+(2023)arelinearprobes,suggestingthepresenceofa“truthdirection”inmodelinternals.
+However, theefficacy andinterpretationof theseresultsarecontroversial. Forinstance,
+Levinstein & Herrmann (2023) note that the probes of Azaria & Mitchell (2023) fail to
+generalizeinbasicways,suchastostatementscontainingtheword“not.” Theprobesof
+Burnsetal.(2023)havesimilargeneralizationissues,especiallywhenusingrepresentations
+fromautoregressivetransformers. Thissuggeststheseprobesmaybeidentifyingnottruth,
+butotherfeaturesthatcorrelatewithtruthontheirtrainingdata.
+1
+4202
+guA
+91
+]IA.sc[
+3v42860.0132:viXra
+PublishedasaconferencepaperatCOLM2024
+20 20 20
+20
+10 10 10
+10
+0 0 0
+0
+−10 −10 −10
+−10
+−20 −20 −20
+−20 −10 0 10 −10 0 10 20 −10 0 10 20 −20 0 20
+2CP
+cities sp_en_trans smaller_than cities_conj
+False
+True
+PC1
+Figure1: PCAvisualizationsforLLaMA-2-70Brepresentationsofourtrue/falsedatasets.
+WorkingwithautoregressivetransformersfromtheLLaMA-2family(Touvronetal.,2023),
+weshedlightonthismurkystateofaffairs. Aftercuratinghigh-qualitydatasetsofsim-
+ple, unambiguous true/false statements, we perform a detailed investigation of LLM
+representationsoffactuality. Ouranalysis,whichdrawsonpatchingexperiments,simple
+visualizationswithprincipalcomponentanalysis(PCA),astudyofprobegeneralization,
+andcausalinterventions,finds:
+• Evidencethatlinearrepresentationsoftruthemergewithscale,withlargermodels
+havingamoreabstractnotionoftruththatappliesacrossstructurallyandtopically
+diverseinputs.
+• A small group of causally-implicated hidden states which encode these truth
+representations.
+• Consistentresultsacrossasuiteofprobingtechniques,butwithsimpledifference-
+in-meanprobesidentifyingdirectionswhicharemostcausallyimplicated.
+Ourcode,datasets,andaninteractivedataexplorerareavailableathttps://github.com/
+saprmarks/geometry-of-truth.
+1.1 Relatedwork
+Linearworldmodels. SubstantialpreviousworkhasstudiedwhetherLLMsencodeworld
+modelsintheirrepresentations(Lietal.,2023a;2021;Abdouetal.,2021;Patel&Pavlick,
+2022). Earlyworkfocusedonwhetherindividualneuronsrepresentfeatures(Wangetal.,
+2022;Sajjadetal.,2022;Bauetal.,2020),butfeaturesmaymoregenerallyberepresented
+bydirectionsinaLLM’slatentspace(i.e. linearcombinationsofneurons)(Dalvietal.,2018;
+Gurnee et al., 2023; Cunningham et al., 2023; Elhage et al., 2022). We say such features
+arelinearlyrepresentedbytheLLM.Justasotherauthorshaveaskedwhethermodelshave
+directions representing the concepts of “West Africa” (Goh et al., 2021) or “basketball”
+(Gurneeetal.,2023),weaskherewhetherthereisadirectioncorrespondingtothetruthor
+falsehoodofafactualstatement.
+Probingfortruthfulness. OthershavetrainedprobestoclassifytruthfulnessfromLLM
+activations,usingbothlogisticregression(Azaria&Mitchell,2023;Lietal.,2023b),unsuper-
+vised(Burnsetal.,2023),andcontrastive(Zouetal.,2023;Rimskyetal.,2024)techniques.
+Thisworkdiffersfrompriorworkinanumberofways. First,acornerstoneofouranalysis
+isevaluatingwhetherprobestrainedononedatasettransfertotopicallyandstructurally
+different datasets in terms of both classification accuracy and causal mediation of model
+outputs. Second, we specifically interrogate whether our probes attend to truth, rather
+thanmerelyfeatureswhichcorrelatewithtruth(e.g. probablevs. improbabletext). Third,
+welocalizetruthrepresentationstoasmallnumberofhiddenstatesabovecertaintokens.
+Fourth,wegobeyondthemass-meanshiftinterventionsofLietal.(2023b)bysystematically
+studyingthepropertiesofdifference-in-mean. Finally,wecarefullyscopeoursetting,using
+onlydatasetsofclear,simple,andunambiguousfactualstatements,ratherthanstatements
+whicharecomplicatedandstructured(Burnsetal.,2023),confusing(Azaria&Mitchell,
+2023;Levinstein&Herrmann,2023),orintentionallymisleading(Lietal.,2023b;Linetal.,
+2022).
+2
+PublishedasaconferencepaperatCOLM2024
+Table1: Ourdatasets
+Name Description Rows
+cities “Thecityof[city]isin[country].” 1496
+neg cities Negationsofstatementsincitieswith“not” 1496
+sp en trans “TheSpanishword‘[word]’means‘[English word]’.” 354
+neg sp en trans Negationsofstatementsinsp en transwith“not” 354
+larger than “xislargerthany.” 1980
+smaller than “xissmallerthany.” 1980
+cities cities conj Conjunctionsoftwostatementsincitieswith“and” 1500
+cities cities disj Disjunctionsoftwostatementsincitieswith“or” 1500
+companies true false Claimsaboutcompanies;fromAzaria&Mitchell(2023) 1200
+common claim true false Variousclaims;fromCasperetal.(2023) 4450
+counterfact true false Variousfactualrecallclaims;fromMengetal.(2022) 31960
+likely Nonfactualtextwithlikelyorunlikelyfinaltokens 10000
+2 Datasets
+Curateddatasets. Unlikesomepriorwork(Linetal.,2022;Onoeetal.,2021, interalia)
+onlanguagemodeltruthfulness,ourprimarygoalisnottomeasureLLMs’capabilitiesfor
+classifyingthefactualityofchallengingdata. Rather,ourgoalistounderstand: DoLLMs
+haveaunifiedrepresentationoftruththatspansstructurallyandtopicallydiversedata? We
+thereforeconstructcurateddatasetswiththefollowingproperties:
+1. Clear scope. We scope “truth” to mean factuality, i.e. the truth or falsehood
+of a factual statement. App. A further clarifies this definition and contrasts it
+withrelatedbutdistinctnotions,suchascorrectquestion-answeringorcompliant
+instruction-following.
+2. Statementsaresimple,uncontroversial,andunambiguous. Inordertoseparate
+ourinterpretabilityanalysisfromquestionsofLLMcapabilities,weworkonlywith
+statementswhosefactualityourmodelsareverylikelytounderstand. Forexample
+“Sixty-oneislargerthanseventy-four”(false)or“TheSpanishword‘nariz’doesnot
+mean‘giraffe’”(true).
+3. Controllablestructuralandtopicaldiversity. Westructureourdataasaunion
+ofsmallerdatasets. Ineachindividualdataset,statementsfollowafixedtemplate
+andtopic. However, theinter-datasetvariationislarge: inadditiontocovering
+different topics, we also—following Levinstein & Herrmann (2023)—introduce
+structuraldiversitybynegatingstatementswith”not”ortakinglogicalconjunc-
+tions/disjunctions(e.g. “Itisthecaseboththats1andthats2”).
+Uncurateddatasets. Inordertovalidatethatthetruthrepresentationsweidentifyalso
+generalizetootherfactualstatements,weuseuncurateddatasetsadaptedfrompriorwork.
+These more challenging test sets consist of statements which are more diverse, but also
+sometimesambiguous,malformed,controversial,ordifficulttounderstand.
+likelydataset. Toensurethatourtruthrepresentationsdonotmerelyreflectarepresenta-
+tionofprobablevs. improbabletext,weintroducealikelydataset,consistingofnonfactual
+textwherethefinaltokeniseitherthemostor100thmostlikelycompletionaccordingto
+LLaMA-13B.
+Ourcurated,uncurated,andlikelydatasetsareshowninTab.1;additioninformationabout
+theirconstructionisinApp.H.
+Wenotethatforsomeofourdatasets,thereisastronganti-correlationbetweentextbeing
+probableandtextbeingtrue. Forinstance,forneg citiesandneg sp en trans,thetruth
+valueofastatementandthelogprobabilityLLaMA-2-70Bassignstoitcorrelateatr = −.63
+andr = −.89,respectively.1 Thisisintuitive: whenpromptedwith“ThecityofParisisnot
+in”,LLaMA-2-70Bjudges“France”tobethemostprobablecontinuation(amongcountries),
+1Incontrast,thecorrelationisstrongandpositiveforcities(r=.85)andsp en trans(r=.95).
+3
+PublishedasaconferencepaperatCOLM2024
+reyaL
+(a)
+(b) (c)
+Chicago i
+/
+s
+Toront
+i
+o
+n Canada . This statement is :
+Figure 2: Difference logP(TRUE)−logP(FALSE) in LLaMA-2-13B log probabilities after
+patchingresidualstreamactivationintheindicatedtokenpositionandlayer.
+despitethiscontinuationbeingfalse. Togetherwiththelikelydataset,thiswillhelpus
+establishthatthelinearstructureweobserveinLLMrepresentationsisnotduetoLLMs
+linearlyrepresentingthedifferencebetweenprobableandimprobabletext.
+3 Localizingtruthrepresentationsviapatching
+BeforebeginningourstudyofLLMtruthrepresentations,wefirstaddressthequestionof
+whichhiddenstatesmightcontainsuchrepresentations. Weusesimplepatchingexperi-
+ments(Vigetal.,2020;Finlaysonetal.,2021;Mengetal.,2022;Geigeretal.,2020)tolocalize
+certainhiddenstatesforfurtheranalysis. Considerthefollowingprompt p :
+F
+ThecityofTokyoisinJapan.Thisstatementis:TRUE
+ThecityofHanoiisinPoland.Thisstatementis:FALSE
+ThecityofChicagoisinCanada.Thisstatementis:
+Similarly,let p bethepromptobtainedfrom p byreplacing“Chicago”with“Toronto,”
+T F
+therebymakingthefinalstatementtrue. Inordertolocalizecausallyimplicatedhidden
+states, we run our model M on the input p and cache the residual stream activations
+T
+h i,ℓ (p T ) for each token position i and layer ℓ. Then, for each i and ℓ, we run M on p F
+butmodify M’sforwardpassbyswappingouttheresidualstreamactivationh i,ℓ (p F )for
+h
+i,ℓ
+(p
+T
+)(andallowingthischangetoaffectdownstreamcomputations);foreachofthese
+interventionexperiments,werecordthedifferenceinlogprobabilitybetweenthetokens
+“TRUE”and“FALSE”;thelargerthisdifference,themorecausallyinfluentialthehidden
+stateinpositioniandlayerℓisonthemodel’sprediction.
+ResultsforLLaMA-2-13BandthecitiesdatasetareshowninFig.2;seeApp.Bforresults
+onmoremodelsanddatasets. Weseethreegroupsofcausallyimplicatedhiddenstates. The
+finalgroup,labeled(c),directlyencodesthemodel’sprediction: afterapplyingtheLLM’s
+decoder head directly to these hidden states, the top logits belong to tokens like “true,”
+“True,”and“TRUE.”Thefirstgroup,labeled(a),likelyencodestheLLM’srepresentationof
+“Chicago”or“Toronto.”
+Whatdoesgroup(b)encode? Thepositionofthisgroup—overthefinaltokenofthestate-
+mentandend-of-sentencepunctuation2—suggeststhatitencodesinformationpertainingto
+thefullstatement. Sincetheinformationencodedisalsocausallyinfluentialonthemodel’s
+decisiontooutput“TRUE”or“FALSE,”wehypothesizethatthesehiddenstatesstorea
+2Thissummarizationbehavior,inwhichinformationaboutclausesisencodedoverclause-ending
+punctuationtokens,wasalsonotedinTiggesetal.(2023). WenotethatthelargestLLaMAmodel
+displaysthissummarizationbehaviorinamorecontext-dependentway;seeApp.B.
+4
+PublishedasaconferencepaperatCOLM2024
+representationofthestatement’struth. Intheremainderofthispaper,wesystematically
+studythesehiddenstates.
+4 VisualizingLLMrepresentationsoftrue/falsedatasets
+Webeginourinvestigationwithasimpletechnique: visualizingLLMsrepresentationsof
+ourdatasetsusingprincipalcomponentanalysis(PCA).Guidedbytheresultsof§3,we
+presentherevisualizationsofthemostdownstreamhiddenstateingroup(b);forexample,
+forLLaMA-2-13B,weusethelayer15residualstreamactivationovertheend-of-sentence
+punctuationtoken.3 Unlikein§3,wedonotprependthestatementswithafew-shotprompt
+(soourmodelsarenot“primed”toconsiderthetruthvalueofourstatements). Foreach
+dataset,wealsocentertheactivationsbysubtractingofftheirmean.
+WhenvisualizingLLaMA-2-13Band70Brepresentationsofourcurateddatasets–datasets
+constructed to have little variation with respect to non-truth features, such as sentence
+structure or subject matter – we see clear linear structure (Fig. 1), with true statements
+separating from false ones in the top two principal components (PCs). As explored in
+App.C,thisstructureemergesrapidlyinearly-middlelayersandemergeslaterfordatasets
+ofmorestructurallycomplexstatements(e.g. conjunctivestatements).
+Towhatextentdoesthisvisually-apparentlinearstructurealignbetweendifferentdatasets?
+Ourvisualizationsindicateanuancedanswer: theaxesofseparationforvarioustrue/false
+datasetsalignoften,butnotalways. Forinstance,Fig.3(a)showsthefirstPCofcitiesalso
+separatingtrue/falsestatementsfromotherdatasets,includingdiverseuncurateddatasets.
+Ontheotherhand,Fig.3(c)showsstarkfailuresofalignment,withtheaxesofseparation
+fordatasetsandstatementsandtheirnegationsbeingapproximatelyorthogonal.
+These cases of misalignment have an interesting relationship to scale. Fig. 3(b) shows
+larger thanandsmaller thanseparatingalongantipodaldirectionsinLLaMA-2-13B,but
+alongacommondirectioninLLaMA-2-70B.App.Cdepictsasimilarphenomenonoccuring
+overthelayersofLLaMA-2-13B:inearlylayers,citiesandneg citiesseparateantipodally,
+beforerotatingtolieorthogonally(asinFig.3(c)),andfinallyaligninginlaterlayers.
+4.1 Discussion
+Overall,thesevisualizationssuggestthatasLLMsscale(andperhaps,alsoasafixedLLM
+progressesthroughitsforwardpass),theyhierarchicallydevelopandlinearlyrepresent
+increasinglygeneralabstractions. Smallmodelsrepresentsurface-levelcharacteristicsof
+theirinputs,andlargemodelslinearlyrepresentmoreabstractconcepts,potentiallyinclud-
+ingnotionslike“truth”thatcapturesharedpropertiesoftopicallyandstructurallydiverse
+inputs. Inmiddleregimes,wemayfindlinearrepresentationofconceptsatintermediate
+levelsofabstraction, forexample, “accuratefactualrecall”or“closeassociation”(inthe
+sensethat“Beijing”and“China”arecloselyassociated).
+Toexploretheseintermediateregimesmoredeeply,supposethatDandD′ aretrue/false
+datasets, f+ isalinearly-representedfeaturewhichcorrelateswithtruthonbothDandD′,
+and f− isafeaturewhichcorrelateswithtruthonD buthasanegativecorrelationwith
+truthonD′. If f+ isverysalient(i.e. thedatasets’havelargevariancealongthe f-direction)
+and f− isnot,thenweexpectPCAvisualizationsofD∪D′ toshowjointseparationalong
+f+.If f−isverysalientbut f+isnot,weexpectantipodalseparationalong f−,asinFig.3(b,
+center). Andifboth f+ and f− aresalient,weexpectvisualizationslikeFig.3(c).
+To give an example, suppose that D = cities, D′ = neg cities, f+ = “truth”, and
+f− =“closeassociation”. Thenwemightexpect f− tocorrelatewithtruthpositivelyonD
+andnegativelyonD′. Ifso,wewouldexpecttraininglinearprobesonD∪D′ toresultin
+3Ourqualitativeresultsareinsensitivetochoiceoflayeramongearly-middletolate-middlelayers.
+Ontheotherhand,whenusingrepresentationsoverthefinaltokeninthestatement(insteadofthe
+punctuationtoken),wesometimesseethatthetopPCsinsteadcapturevariationinthetokenitself
+(e.g.clustersforstatementsendingin“China”regardlessoftheirtruthvalue).
+5
+PublishedasaconferencepaperatCOLM2024
+6 6 8 5 8 20 20
+2 4 2 4 4 6 0 4 6 1 1 0 5 1 1 0 5
+0 0 2 −5 2 5 5
+−2 −2 0 5 0 0 0
+−4 −4 −2 −2 −5 −5
+−6 −6 −4 0 −4 −10 −10
+−8−50 −8−50 0 0 50 −650 −5 −6 −5 −10 −5P0C10 0 5 10 5 −20 −2−010 −100 010 10
+2CP
+Dataset visualizations in various PCA bases
+2 4 10 10
+0 2 5 5
+−2 − 0 2 0 − 0 5 −4 −5
+−4 −2 0 2 −5 0cities PC−51 0 5 10 −10 0 10
+7B 13B 70B
+PC1
+larger_than Unnegated dataset
+smaller_than Negated dataset
+2CP
+sietic
+(a) Visualizations in cities PCA basis (13B) (c) Datasets and their negations
+larger_than sp_en_trans common_claim counterfact cities+neg_cities, 13B larger_than+smaller_than, 70B
+10 10
+5 0
+(b) larger_than+smaller_than across model scale 0 −10
+−5 −20 −10 0 10 −20 0 20
+False
+True
+2CP
+Figure 3: (a) Projections of LLaMA-2-13B onto the top 2 PCs of cities. (b) PCA visual-
+izations of larger than+smaller than. For LLaMA-2-7B (left), we see statements cluster
+accordingtosurface-levelcharacteristics,e.g. presenceofthetoken“eighty.” ForLLaMA-2-
+13B,weseethatlarger than(center,top)andsmaller than(center,bottom)separatealong
+oppositedirections. (c)PCAvisualizationsofdatasetsandtheirnegations. Unlikeinother
+visualizations,weuselayer12forcities+neg cities;seeApp.Cforanexplorationofthis
+misalignmentemergingandresolvingacrosslayers.
+improvedgeneralization,despiteD′ consistingofthesamestatementsasD,butwiththe
+word“not”inserted. Weinvestigatethisin§5.
+5 Probingandgeneralizationexperiments
+Inthissectionwetrainprobesondatasetsoftrue/falsestatementsandtesttheirgeneraliza-
+tiontootherdatasets. Butfirstwediscussadeficiencyoflogisticregressionandproposea
+simple,optimization-freealternative: mass-meanprobing. Concretely,mass-meanprobes
+useadifference-in-meansdirection,but—whenthecovariancematrixoftheclassification
+dataisknown(e.g. whenworkingwithIIDdata)—applyacorrectionintendedtomitigate
+interferencefromnon-orthogonalfeatures. Wewillseethatmass-meanprobesaresimilarly
+accurate to probes trained with other techniques (including on out-of-distribution data)
+whilebeingmorecausallyimplicatedinmodeloutputs.
+5.1 Challengeswithlogisticregression,andmass-meanprobing
+Acommontechniqueininterpretabilityresearchforidentifyingfeaturedirectionsistraining
+linearprobeswithlogisticregression(LR;Alain&Bengio,2018).Insomecases,however,the
+directionidentifiedbyLRcanfailtoreflectanintuitivebestguessforthefeaturedirection,
+evenintheabsenceofconfoundingfeatures. Considerthefollowingscenario,illustratedin
+Fig.4withhypotheticaldata:
+• Truthisrepresentedlinearlyalongadirectionθ .
+t
+• Anotherfeature f isrepresentedlinearlyalongadirectionθ notorthogonaltoθ .4
+f t
+• Thestatementsinourdatasethavesomevariationwithrespecttofeature f,inde-
+pendentoftheirtruthvalue.
+Wewouldliketoidentifythedirectionθ ,butLRfailstodoso. Assumingforsimplicity
+t
+linearlyseparabledata,LRinsteadconvergestothemaximummarginseparatorSoudry
+etal.(2018)(thedashedmagentalineinFig.4). Intuitively,LRtreatsthesmallprojectionof
+θ ontoθ assignificant,andadjuststheprobedirectiontohaveless“interference”(Elhage
+f t
+etal.,2022)fromθ .
+f
+4ThesuperpositionhypothesisofElhageetal.(2022),suggeststhismaybetypicalindeepnetworks.
+6
+PublishedasaconferencepaperatCOLM2024
+AsimplealternativetoLRwhichidentifiesthede-
+θf sireddirectioninthisscenarioistotakethevector
+pointingfromthemeanofthefalsedatatothemean
+ofthetruedata. Inmoredetailif D = {(x,y )} is
+i i
+a dataset of x ∈ Rd with binary labels y ∈ {0,1},
+i i
+wesetθ = µ+−µ− whereµ+,µ− arethemeans
+mm
+ofthepositively-andnegatively-labeleddatapoints,
+θt = θmm respectively. A reasonable first pass at converting
+θ intoaprobeistodefine5
+θlr mm
+p (x) = σ(θT x)
+mm mm
+True
+whereσisthelogisticfunction. However,wheneval-
+False
+uating on data that is independent and identically
+distributed (IID) to D, we can do better by tilting
+Figure4: Anillustrationofaweak-
+ourdecisionboundarytoaccommodateinterference
+nessoflogisticregression.
+fromθ . Concretelythismeanssetting
+f
+piid (x) = σ(θT Σ−1x)
+mm mm
+whereΣisthecovariancematrixofthedatasetDc = {x −µ+ : y =1}∪{x −µ− : y =0};
+i i i i
+thiscoincideswithperforminglineardiscriminantanalysis(Fisher,1936).6
+Wecalltheprobes p and piid mass-meanprobes. Aswewillsee,mass-meanprobingis
+mm mm
+aboutasaccurateforclassificationasLR,whilealsoidentifyingdirectionswhicharemore
+causallyimplicatedinmodeloutputs.
+5.2 Experimentalset-up
+Inthissection,wemeasuretheeffectthatchoiceoftrainingdata,probingtechnique,and
+modelscalehasonprobeaccuracy.
+Fortrainingdata,weuseoneof: cities,cities + neg cities,larger than,larger than
++ smaller than,orlikely. Bycomparingprobestrainedoncitiestoprobestrainedon
+cities + neg cities, weareable tomeasuretheeffect ofincreasingdatadiversity ina
+particular, targeted way: namely, we mitigate the effect of linearly-represented features
+whichhaveopposite-signcorrelationswiththetruthincitiesandneg cities. Asin§4,
+wewillextractactivationsatthemost-downstreamhiddenstateingroup(b).
+Ourprobingtechniquesarelogisticregression(LR),mass-meanprobing(MM),andcontrast-
+consistentsearch(CCS).CCSisanunsupervisedmethodintroducedinBurnsetal.(2023):
+givencontrastpairsofstatementswithoppositetruthvalues,CCSidentifiesadirectionalong
+whichtherepresentationsofthesestatementsarefarapart. Forourcontrastpairs,wepair
+statementsfromcitiesandneg cities,andfromlarger thanandsmaller than.
+Fortestsets,weuseallofour(curatedanduncurated)true/falsedatasets. Givenatraining
+setD,wetrainourprobeonarandom80%splitofD. Thenwhenevaluatingaccuracyona
+testsetD′,weusetheremaining20%ofthedataifD′ = Dandthefulltestsetotherwise.
+Formass-meanprobing,ifD = D′,weuse piid ,andweuse p otherwise.
+mm mm
+Finally, wealsoincludeasbaselinescalibratedfew-shotprompting7 and–asanoracle
+baseline–LRonthetestset.
+5Sinceweareinterestedintruthdirections,wealwayscenterourdataanduseunbiasedprobes.
+6WeproveinApp.Fthat,giveninfinitedataandahomoscedasticityassumption,Σ−1θmmcoincides
+withthedirectionfoundbyLR.Thus,onecanviewIIDmass-meanprobingasprovidingawayto
+select a good decision boundary while – unlike LR – also tracking a candidate feature direction
+whichmaybenon-orthogonaltothisdecisionboundary.App.Eprovidesanotherinterpretationof
+mass-meanprobingintermsofMahalanobiswhitening.Finally,App.
+7Wefirstsweepoveranumbernofshotsandthenresampleafewn-shotpromptstomaximize
+performance.Theword“calibrated”meansweselectedathresholdforP(TRUE)−P(FALSE)suchthat
+halfofthestatementsarelabeledtrue;thisimprovesperformancebyafewpercentagepoints.
+7
+PublishedasaconferencepaperatCOLM2024
+(a) OOD accuracies of LR probes (b) Average test set accuracies
+cities+neg_cities
+larger_than+smaller_than
+test set (oracle)
+likely
+LR
+MM
+CCS
+Figure5: (a)Averageaccuraciesoveralldatasetsasidefromthoseusedfortraining. (b)
+Accuraciesofprobesforvaryingmodelscalesandtrainingdata,averagedoveralltestsets.
+5.3 Results
+Foreachtrainingset,probingtechnique,andmodelscale,wereporttheaverageaccuracy
+acrosstestsets. Weexpectmanyreaderstobeinterestedinthefullresults(includingtest
+set-specificaccuracies),whicharereportedinApp.D.Calibratedfew-shotpromptingwasa
+surprisinglyweakbaseline,sowedonotreportithere(butseeApp.D).
+Trainingonstatementsandtheiroppositesimprovesgeneralization(Fig.5(a)). When
+passingfromcitiestocities+neg cities,thiseffectislargelyexplainedbyimprovedgen-
+eralizationonneg sp en trans,i.e. usingtrainingdatacontainingtheword“not”improves
+generalizationonothernegatedstatements. Ontheotherhand,passingfromlarger than
+tolarger than+smaller thanalsoimprovesperformance,despitebothdatasetsbeingvery
+structurallydifferentfromtherestofourdatasets. Asdiscussedin§4.1,thissuggestthat
+trainingonstatementsandtheiroppositesmitigatestheeffectcertaintypesofnon-truth
+featureshaveontheprobedirection.
+Probes generalize better for larger models (Fig. 5). While it is unsurprising that larger
+modelsarethemselvesbetteratlabelingstatementsastrueorfalse,itisnotobviousthat
+linear probes trained on larger models should also generalize better. Nevertheless, for
+LLaMA-2-13B and 70B, generalization is generally high; for example, no matter which
+probing technique is used, we find that probes trained on larger than + smaller than
+get>95%accuracyonsp en trans. Thiscorroboratesourdiscussionin§4.1,inwhichwe
+suggestedthatlargermodelslinearlyrepresentmoregeneralconceptsconcepts,liketruth,
+whichcapturesharedaspectsofdiverseinputs.
+Mass-meanprobesgeneralizeaboutaswellasotherprobingtechniquesforlargermodels
+(Fig. 5(b)). While MM underperforms LR and CCS for LLaMA-2-7B, we find for larger
+modelsperformancecomparabletothatofotherprobingtechniques. Further,wewillseein
+§6thatthedirectionsidentifiedbyMMaremorecausallyimplicatedinmodeloutputs.
+Probestrainedonlikelyperformpoorly(Fig.5(b)). Thefullresultsrevealthatprobes
+trainedonlikelyareaccuratewhenevaluatedonsomedatasets,suchassp en transwhere
+there is a strong (r = .95) correlation between text probability and truth. However, on
+otherdatasets,especiallythosewithanti-correlationsbetweenprobabilityandtruth,these
+probes perform worse than chance. Overall, this indicates that LLMs linearly represent
+truth-relevantinformationbeyondtheplausibilityoftext.
+6 Causalinterventionexperiments
+In§5wemeasuredthequalityoflinearprobesintermsoftheirclassificationaccuracy,bothin-
+andout-of-distribution. Inthissection,weperformexperimentswhichmeasuretheextent
+to which these probes identify directions which are causally implicated in model outputs
+Finlaysonetal.(2021);Gevaetal.(2023);Geigeretal.(2021). Todothis,wewillintervenein
+ourmodel’scomputationbyshiftingtheactivationsingroup(b)(identifiedin§3)alongthe
+directionsidentifiedbyourlinearprobes. OurgoalistocauseLLMstotreatfalsestatements
+8
+PublishedasaconferencepaperatCOLM2024
+appearingincontextastrueandviceversa. Crucially—andincontrasttopriorwork(Li
+etal.,2023b)—weevaluateourinterventionsonOODinputs.
+Table2: NIEsforinterventionexperiments,averagedoverstatementsfromsp en trans.
+LLaMA-2-13B LLaMA-2-70B
+trainset probe false→true true→false false→true true→false
+LR .13 .19 .55 .99
+cities
+MM .77 .90 .58 .89
+LR .33 .52 .61 1.00
+cities+
+neg cities MM .85 .97 .81 .95
+CCS .31 .73 .55 .96
+LR .28 .27 .61 .96
+larger than
+MM .71 .79 .67 1.01
+LR .07 .13 .54 1.02
+larger than+
+MM .26 .53 .66 1.03
+smaller than
+CCS .08 .17 .57 1.02
+LR .05 .08 .18 .46
+likely
+MM .70 .54 .68 .27
+6.1 Experimentalset-up
+Let p be a linear probe trained on a true/false dataset D. Let θ be the probe direction,
+normalizedsothat p(µ−+θ) = p(µ+)whereµ+ andµ− arethemeanrepresentationsof
+thetrueandfalsestatementsinD,respectively;inotherwords,wenormalizeθsothatfrom
+theperspectiveoftheprobe p,addingθturnstheaveragefalsestatementintotheaverage
+truestatement. Ifourmodelencodesthetruthvalueofstatementsalongthedirectionθ,
+wewouldexpectthatreplacingtherepresentationxofafalsestatementswithx+θwould
+causethemodeltoproduceoutputsconsistentwithsbeingatruestatement.
+Weuseinputsoftheform
+TheSpanishword‘fruta’means‘goat’.Thisstatementis:FALSE
+TheSpanishword‘carne’means‘meat’.Thisstatementis:TRUE
+s.Thisstatementis:
+wheresvariesoversp en transstatements. Thenforeachoftheprobesof§5werecord:
+• PD+andPD−,theaverageprobabilitydifferencesP(TRUE)−P(FALSE)forsvarying
+overtruestatementsorfalsestatementsinsp en trans,respectively,
+• PD+ andPD−,theaverageprobabilitydifferenceswheresvariesovertrue(resp.
+∗ ∗
+false)statementsbuttheprobedirectionθissubtracted(resp. added)toeachgroup
+(b)hiddenstate.
+Finally,wereportthenormalizedindirecteffects(NIEs)
+PD−−PD− PD+−PD+
+∗ ∗
+or
+PD+−PD− PD−−PD+
+forthefalse→trueandthetrue→falseexperiments,respectively. AnNIEof0meansthatthe
+interventionwaswhollyineffectiveatchangingmodeloutputs;anNIEof1indicatesthat
+theinterventioncausedtheLLMtolabelfalsestatementsasTRUEwithasmuchconfidence
+asgenuinetruestatements,orviceversa.
+6.2 Results
+Resultsareshownintable2. Wesummarizeourmaintakeaways.
+Mass-meanprobedirectionsarehighlycausal,withMMoutperformingLRandCCSin
+7/8experimentalconditions, oftensubstantially. ThisistruedespiteLR,MM,andCCS
+probesallhaveverysimilarsp en transclassificationaccuracies.
+9
+PublishedasaconferencepaperatCOLM2024
+Trainingondatasetsandtheiroppositeshelpsforcitiesbutnotforlarger than. Thisis
+surprising,consideringthatprobestrainedonlarger than + smaller thanaremoreaccurate
+onsp en transthanprobestrainedonlarger thanalone(seeApp.D),andindicatesthat
+thereismoretobeunderstoodabouthowtrainingondatasetsandtheiroppositesaffects
+truthprobes.
+Trainingonlikelyisasurprisinglygoodbaseline,thoughstillweakerthaninterventions
+usingtruthprobes. Theperformanceheremaybeduetothestrongcorrelation(r = .95)
+betweeninputsbeingtrueandprobable(accordingtoLLaMA-2-70B)onsp en trans.
+7 Discussion
+7.1 Limitationsandfuturework
+Ourworkhasanumberoflimitations.First,wefocusonsimple,uncontroversialstatements,
+andthereforecannotdisambiguatetruthfromcloselyrelatedfeatures,suchas“commonly
+believed”or“verifiable”(Levinstein&Herrmann,2023). Second,westudyonlymodelsin
+theLLaMA-2family,soitispossiblethatsomeofourresultsdonotapplyforallLLMs.
+Thisworkalsoraisesseveralquestionswhichwewereunabletoanswerhere. Forinstance,
+whywereinterventionswithmass-meanprobedirectionsextractedfromthelikelydataset
+soeffective,despitetheseprobesnotthemselvesbeingaccurateatclassifyingtrue/false
+statements? Andwhydidmass-meanprobingwiththecities + neg citiestrainingdata
+performpoorlypoorlyforthe70Bmodel,despitemass-meanprobingwithlarger than +
+smaller thanperformingwell?
+7.2 Conclusion
+InthisworkweconductadetailedinvestigationofthestructureofLLMrepresentations
+oftruth. Drawingonsimplevisualizations,probingexperiments,andcausalevidence,we
+findevidencethatatscale,LLMscomputeandlinearlyrepresentthetruthoftrue/false
+statements. Wealsolocalizetruthrepresentationstocertainhiddenstatesandintroduce
+mass-meanprobing,asimplealternativetootherlinearprobingtechniqueswhichbetter
+identifiestruthdirectionsfromtrue/falsedatasets.
+Acknowledgements
+WethankZimingLiuandIsaacLiaoforusefulsuggestionsregardingdistinguishingtrue
+text from likely text, and Wes Gurnee, Eric Michaud, and Peter Park for many helpful
+discussionsthroughoutthisproject. WethankDavidBauforusefulsuggestionsregarding
+theexperimentsinSec.6. ThanksalsotoNoraBelrosefordiscussionabouttheconnection
+betweendifference-in-meanprobingandlinearerasure.
+WealsothankOamPatel,HadasOrgad,SoheeYang,andKarinaNguyenfortheirsugges-
+tions,aswellasHelenaCasademunt,MaxNadeau,andBenEdelmanforgivingfeedback
+during this paper’s preparation. Plots were made with Plotly (Plotly Technologies Inc.,
+2015). ThankstoKevinRoWangforcatchingatypointhestatementofThm.F.1.
+10
+PublishedasaconferencepaperatCOLM2024
+References
+Mostafa Abdou, Artur Kulmizev, Daniel Hershcovich, Stella Frank, Ellie Pavlick, and
+AndersSøgaard. Canlanguagemodelsencodeperceptualstructurewithoutgrounding?
+acasestudyincolor,2021.
+Guillaume Alain and Yoshua Bengio. Understanding intermediate layers using linear
+classifierprobes,2018.
+AmosAzariaandTomMitchell. Theinternalstateofanllmknowswhenitslying,2023.
+David Bau, Jun-Yan Zhu, Hendrik Strobelt, Agata Lapedriza, Bolei Zhou, and Antonio
+Torralba. Understandingtheroleofindividualunitsinadeepneuralnetwork. Proceedings
+oftheNationalAcademyofSciences,2020. ISSN0027-8424. doi: 10.1073/pnas.1907375117.
+URLhttps://www.pnas.org/content/early/2020/08/31/1907375117.
+NoraBelrose,DavidSchneider-Joseph,ShauliRavfogel,RyanCotterell,EdwardRaff,and
+StellaBiderman. LEACE:Perfectlinearconcepterasureinclosedform. InThirty-seventh
+ConferenceonNeuralInformationProcessingSystems,2023. URLhttps://openreview.net/
+forum?id=awIpKpwTwF.
+CollinBurns,HaotianYe,DanKlein,andJacobSteinhardt. Discoveringlatentknowledgein
+languagemodelswithoutsupervision. InTheEleventhInternationalConferenceonLearning
+Representations,2023. URLhttps://openreview.net/forum?id=ETKGuby0hcs.
+StephenCasper,JasonLin,JoeKwon,GatlenCulp,andDylanHadfield-Menell. Explore,
+establish,exploit: Redteaminglanguagemodelsfromscratch,2023.
+PaulChristiano,AjeyaCotra,andMarkXu. Elicitinglatentknowledge: Howtotellifyour
+eyes deceive you, 2021. URL https://docs.google.com/document/d/1WwsnJQstPq91
+Yh-Ch2XRL8H EpsnjrC1dwZXR37PC8/edit#heading=h.jrzi4atzacns.
+HoagyCunningham,AidanEwart,LoganRiggs,RobertHuben,andLeeSharkey. Sparse
+autoencodersfindhighlyinterpretablefeaturesinlanguagemodels,2023.
+FahimDalvi,NadirDurrani,HassanSajjad,YonatanBelinkov,AnthonyBau,andJamesR.
+Glass. What is one grain of sand in the desert? analyzing individual neurons in
+deep nlp models. In AAAI Conference on Artificial Intelligence, 2018. URL https:
+//api.semanticscholar.org/CorpusID:56895415.
+NelsonElhage,TristanHume,CatherineOlsson,NicholasSchiefer,TomHenighan,Shauna
+Kravec,ZacHatfield-Dodds,RobertLasenby,DawnDrain,CarolChen,RogerGrosse,
+SamMcCandlish,JaredKaplan,DarioAmodei,MartinWattenberg,andChristopherOlah.
+Toymodelsofsuperposition. TransformerCircuitsThread,2022.
+MatthewFinlayson,AaronMueller,SebastianGehrmann,StuartShieber,TalLinzen,and
+YonatanBelinkov. Causalanalysisofsyntacticagreementmechanismsinneurallanguage
+models. InChengqingZong,FeiXia,WenjieLi,andRobertoNavigli(eds.),Proceedings
+of the 59th Annual Meeting of the Association for Computational Linguistics and the 11th
+InternationalJointConferenceonNaturalLanguageProcessing(Volume1: LongPapers),pp.
+1828–1843, Online, August 2021. Association for Computational Linguistics. doi: 10.
+18653/v1/2021.acl-long.144. URLhttps://aclanthology.org/2021.acl-long.144.
+R.A.Fisher. Theuseofmultiplemeasurementsintaxonomicproblems. AnnalsofEugenics,
+7(2):179–188,1936. doi: https://doi.org/10.1111/j.1469-1809.1936.tb02137.x. URLhttps:
+//onlinelibrary.wiley.com/doi/abs/10.1111/j.1469-1809.1936.tb02137.x.
+AtticusGeiger,KyleRichardson,andChristopherPotts. Neuralnaturallanguageinference
+modelspartiallyembedtheoriesoflexicalentailmentandnegation. InAfraAlishahi,
+YonatanBelinkov,GrzegorzChrupala,DieuwkeHupkes,YuvalPinter,andHassanSajjad
+(eds.),ProceedingsoftheThirdBlackboxNLPWorkshoponAnalyzingandInterpretingNeural
+NetworksforNLP,BlackboxNLP@EMNLP2020,Online,November2020,pp.163–173.Associ-
+ationforComputationalLinguistics,2020. doi: 10.18653/V1/2020.BLACKBOXNLP-1.16.
+URLhttps://doi.org/10.18653/v1/2020.blackboxnlp-1.16.
+11
+PublishedasaconferencepaperatCOLM2024
+AtticusGeiger,HansonLu,ThomasIcard,andChristopherPotts. Causalabstractionsof
+neuralnetworks. InMarc’AurelioRanzato,AlinaBeygelzimer,YannN.Dauphin,Percy
+Liang,andJenniferWortmanVaughan(eds.),AdvancesinNeuralInformationProcessing
+Systems34: AnnualConferenceonNeuralInformationProcessingSystems2021,NeurIPS2021,
+December6-14,2021,virtual,pp.9574–9586,2021. URLhttps://proceedings.neurips.cc/
+paper/2021/hash/4f5c422f4d49a5a807eda27434231040-Abstract.html.
+Geonames. Allcitieswithapopulation > 1000,2023. URLhttps://download.geonames.
+org/export/dump/.
+Mor Geva, Jasmijn Bastings, Katja Filippova, and Amir Globerson. Dissecting recall of
+factualassociationsinauto-regressivelanguagemodels,2023.
+Gabriel Goh, Nick Cammarata †, Chelsea Voss †, Shan Carter, Michael Petrov, Ludwig
+Schubert,AlecRadford,andChrisOlah.Multimodalneuronsinartificialneuralnetworks.
+Distill,2021. doi: 10.23915/distill.00030. https://distill.pub/2021/multimodal-neurons.
+WesGurnee,NeelNanda,MatthewPauly,KatherineHarvey,DmitriiTroitskii,andDimitris
+Bertsimas. Findingneuronsinahaystack: Casestudieswithsparseprobing,2023.
+B.A.LevinsteinandDanielA.Herrmann. Stillnoliedetectorforlanguagemodels: Probing
+empiricalandconceptualroadblocks,2023.
+Belinda Z. Li, Maxwell Nye, and Jacob Andreas. Implicit representations of meaning
+in neural language models. In Proceedings of the 59th Annual Meeting of the Associa-
+tion for Computational Linguistics and the 11th International Joint Conference on Natural
+Language Processing (Volume 1: Long Papers), pp. 1813–1827, Online, August 2021. As-
+sociation for Computational Linguistics. doi: 10.18653/v1/2021.acl-long.143. URL
+https://aclanthology.org/2021.acl-long.143.
+KennethLi,AspenKHopkins,DavidBau,FernandaVie´gas,HanspeterPfister,andMartin
+Wattenberg. Emergentworldrepresentations: Exploringasequencemodeltrainedona
+synthetictask. InTheEleventhInternationalConferenceonLearningRepresentations,2023a.
+URLhttps://openreview.net/forum?id=DeG07 TcZvT.
+Kenneth Li, Oam Patel, Fernanda Vie´gas, Hanspeter Pfister, and Martin Wattenberg.
+Inference-timeintervention: Elicitingtruthfulanswersfromalanguagemodel,2023b.
+Stephanie Lin, Jacob Hilton, and Owain Evans. TruthfulQA: Measuring how models
+mimichumanfalsehoods. InProceedingsofthe60thAnnualMeetingoftheAssociationfor
+ComputationalLinguistics(Volume1: LongPapers),pp.3214–3252,Dublin,Ireland,May
+2022. Association for Computational Linguistics. doi: 10.18653/v1/2022.acl-long.229.
+URLhttps://aclanthology.org/2022.acl-long.229.
+Kevin Meng, David Bau, Alex Andonian, and Yonatan Belinkov. Locating and editing
+factualassociationsinGPT. AdvancesinNeuralInformationProcessingSystems,36,2022.
+YasumasaOnoe,MichaelJQZhang,EunsolChoi,andGregDurrett. CREAK:Adataset
+forcommonsensereasoningoverentityknowledge. InThirty-fifthConferenceonNeural
+InformationProcessingSystemsDatasetsandBenchmarksTrack(Round2),2021. URLhttps:
+//openreview.net/forum?id=mbW GT3ZN-.
+OpenAI. Gpt-4technicalreport,2023.
+Peter S. Park, Simon Goldstein, Aidan O’Gara, Michael Chen, and Dan Hendrycks. Ai
+deception: Asurveyofexamples,risks,andpotentialsolutions,2023.
+RomaPatelandElliePavlick. Mappinglanguagemodelstogroundedconceptualspaces. In
+InternationalConferenceonLearningRepresentations,2022. URLhttps://openreview.net/
+forum?id=gJcEM8sxHK.
+12
+PublishedasaconferencepaperatCOLM2024
+EthanPerez,SamRinger,Kamile˙ Lukosˇiu¯te˙,KarinaNguyen,EdwinChen,ScottHeiner,
+CraigPettit,CatherineOlsson,SandipanKundu,SauravKadavath,AndyJones,Anna
+Chen, BenMann, BrianIsrael, BryanSeethor, CameronMcKinnon, ChristopherOlah,
+Da Yan, Daniela Amodei, Dario Amodei, Dawn Drain, Dustin Li, Eli Tran-Johnson,
+GuroKhundadze, JacksonKernion, JamesLandis, JamieKerr, JaredMueller, Jeeyoon
+Hyun,JoshuaLandau,KamalNdousse,LandonGoldberg,LianeLovitt,MartinLucas,
+MichaelSellitto, MirandaZhang, NeeravKingsland, NelsonElhage, NicholasJoseph,
+Noem´ıMercado,NovaDasSarma,OliverRausch,RobinLarson,SamMcCandlish,Scott
+Johnston, ShaunaKravec, SheerElShowk, TameraLanham, TimothyTelleen-Lawton,
+TomBrown,TomHenighan,TristanHume,YuntaoBai,ZacHatfield-Dodds,JackClark,
+SamuelR.Bowman,AmandaAskell,RogerGrosse,DannyHernandez,DeepGanguli,
+Evan Hubinger, Nicholas Schiefer, and Jared Kaplan. Discovering language model
+behaviorswithmodel-writtenevaluations,2022.
+PlotlyTechnologiesInc. Collaborativedatascience,2015. URLhttps://plot.ly.
+NinaRimsky,NickGabrieli,JulianSchulz,MegTong,EvanHubinger,andAlexanderMatt
+Turner. Steeringllama2viacontrastiveactivationaddition,2024.
+HassanSajjad,NadirDurrani,andFahimDalvi. Neuron-levelinterpretationofdeepNLP
+models: Asurvey. TransactionsoftheAssociationforComputationalLinguistics,10:1285–1303,
+2022. doi: 10.1162/tacl a 00519. URLhttps://aclanthology.org/2022.tacl-1.74.
+DanielSoudry,EladHoffer,MorShpigelNacson,SuriyaGunasekar,andNathanSrebro.
+Theimplicitbiasofgradientdescentonseparabledata. TheJournalofMachineLearning
+Research,19(1):2822–2878,2018.
+Jacob Steinhardt. Emergent deception and emergent optimization, 2023. URL https:
+//bounded-regret.ghost.io/emergent-deception-optimization/.
+CurtTigges,OskarJohnHollinsworth,AtticusGeiger,andNeelNanda. Linearrepresenta-
+tionsofsentimentinlargelanguagemodels,2023.
+HugoTouvron,LouisMartin,KevinStone,PeterAlbert,AmjadAlmahairi,YasmineBabaei,
+NikolayBashlykov,SoumyaBatra,PrajjwalBhargava,ShrutiBhosale,DanBikel,Lukas
+Blecher, Cristian Canton Ferrer, Moya Chen, Guillem Cucurull, David Esiobu, Jude
+Fernandes,JeremyFu,WenyinFu,BrianFuller,CynthiaGao,VedanujGoswami,Naman
+Goyal, Anthony Hartshorn, Saghar Hosseini, Rui Hou, Hakan Inan, Marcin Kardas,
+ViktorKerkez,MadianKhabsa,IsabelKloumann,ArtemKorenev,PunitSinghKoura,
+Marie-AnneLachaux,ThibautLavril,JenyaLee,DianaLiskovich,YinghaiLu,Yuning
+Mao,XavierMartinet,TodorMihaylov,PushkarMishra,IgorMolybog,YixinNie,Andrew
+Poulton, JeremyReizenstein, RashiRungta, KalyanSaladi, AlanSchelten, RuanSilva,
+EricMichaelSmith,RanjanSubramanian,XiaoqingEllenTan,BinhTang,RossTaylor,
+AdinaWilliams, Jian XiangKuan, Puxin Xu, Zheng Yan, IliyanZarov, Yuchen Zhang,
+Angela Fan, Melanie Kambadur, Sharan Narang, Aurelien Rodriguez, Robert Stojnic,
+SergeyEdunov,andThomasScialom. Llama2: Openfoundationandfine-tunedchat
+models,2023.
+JesseVig,SebastianGehrmann,YonatanBelinkov,SharonQian,DanielNevo,YaronSinger,
+andStuartShieber. Investigatinggenderbiasinlanguagemodelsusingcausalmedia-
+tionanalysis. InH.Larochelle,M.Ranzato,R.Hadsell,M.F.Balcan,andH.Lin(eds.),
+AdvancesinNeuralInformationProcessingSystems,volume33,pp.12388–12401.Curran
+Associates,Inc.,2020. URLhttps://proceedings.neurips.cc/paper files/paper/2020/
+file/92650b2e92217715fe312e6fa7b90d82-Paper.pdf.
+XiaozhiWang,KaiyueWen,ZhengyanZhang,LeiHou,ZhiyuanLiu,andJuanziLi. Finding
+skill neurons in pre-trained transformer-based language models. In Proceedings of the
+2022 Conference on Empirical Methods in Natural Language Processing, pp. 11132–11152,
+AbuDhabi,UnitedArabEmirates,December2022.AssociationforComputationalLin-
+guistics. doi: 10.18653/v1/2022.emnlp-main.765. URLhttps://aclanthology.org/2022.
+emnlp-main.765.
+13
+PublishedasaconferencepaperatCOLM2024
+AndyZou,LongPhan,SarahChen,JamesCampbell,PhillipGuo,RichardRen,Alexander
+Pan,XuwangYin,MantasMazeika,Ann-KathrinDombrowski,ShashwatGoel,Nathaniel
+Li,MichaelJ.Byun,ZifanWang,AlexMallen,StevenBasart,SanmiKoyejo,DawnSong,
+Matt Fredrikson, J. Zico Kolter, and Dan Hendrycks. Representation engineering: A
+top-downapproachtoaitransparency,2023.
+14
+PublishedasaconferencepaperatCOLM2024
+A Scopingoftruth
+Inthiswork,weconsiderdeclarativefactualstatements,forexample“Eighty-oneislarger
+thanfifty-four”or“ThecityofDenverisinVietnam.” Wescope“truth”tomeanfactuality,
+i.e. thetruthorfalsehoodofthesestatements;forinstancetheexamplesgivenhavetruth
+valuesoftrueandfalse,respectively. Tobeclear,welistheresomenotionsof“truth”which
+wedonotconsiderinthiswork:
+• Correct question answering (considered in Li et al. (2023b) and for some of the
+prompts used in Burns et al. (2023)). For example, we do not consider “What
+countryisParisin? France”tohaveatruthvalue.
+• Presenceofdeception,forexampledishonestexpressionsofopinion(“Ilikethat
+plan”).
+• Compliance. Forexample,“Answerthisquestionincorrectly: whatcountryisParis
+in? ParisisinEgypt”isanexampleofcompliance,eventhoughthestatementat
+theendofthetextisfalse.
+Moreover,thestatementsunderconsiderationinthisworkareallsimple,unambiguous,
+anduncontroversial. Thus,wemakenoattempttodisambiguate“truestatements”from
+closely-relatednotionslike:
+• Uncontroversialstatements
+• Statementswhicharewidelybelieved
+• Statementswhicheducatedpeoplebelieve.
+Ontheotherhand,ourstatementsdodisambiguatethenotionsof“truestatements”and
+“statementswhicharelikelytoappearintrainingdata”;Seeourdiscussionattheendof§2.
+B Fullpatchingresults
+Fig.6showsfullpatchingresults. WeseethatbothLLaMA-2-7BandLLaMA-2-13Bdis-
+playthe“summarization”behaviorinwhichinformationrelevanttothefullstatementis
+represented over the end-of-sentence punctuation token. On the other hand, LLaMA-2-
+70Bdisplaysthisbehaviorinacontext-dependentway–weseeitforcitiesbutnotfor
+sp en trans.
+C Emergenceoflinearstructureacrosslayers
+Thelinearstructureobservedin§4followsthefollowingpattern: inearlylayers,represen-
+tationsareuninformative;then,inearlymiddlelayers,salientlinearstructureinthetop
+fewPCsrapidlyemerges, withthisstructureemerginglaterforstatementswithamore
+complicatedlogicalstructure(e.g. conjunctions). ThisisshownforLLaMA-2-13BinFig.7.
+WehypothesizethatthisisduetoLLMshierarchicallydevelopingunderstandingoftheir
+inputdata,progressingfromsurfacelevelfeaturestomoreabstractconcepts.
+The misalignment in Fig. 3(c) also has an interesting dependence on layer. In Fig. 8 we
+visualizeLLaMA-2-13Brepresentationsofcitiesandneg citiesatvariouslayers. Inearly
+layers(left)weseeantipodalalignmentasinFig.3(b,center). Asweprogressthroughlayers,
+weseetheaxesofseparationrotatetolieorthogonally,untiltheyeventuallyalign.
+Oneinterpretationofthisisthatinearlylayers,themodelcomputedandlinearlyrepre-
+sentedsomefeature(like“closeassociation”)whichcorrelateswithtruthonbothcities
+andneg citiesbutwithoppositesigns. Inlaterlayers,themodelcomputedandpromoted
+togreatersalienceamoreabstractconceptwhichcorrelateswithtruthacrossbothdatasets.
+15
+PublishedasaconferencepaperatCOLM2024
+B07
+B31
+B7
+cities sp_en_trans
+Figure 6: Full patching results across all three model sizes and inputs. Results are for
+patchingfalseinputs(shown)totruebychangingthefirsttokenshownontheleft.Numbers
+inparenthesesaretheindexofthetokeninthefull(few-shot)prompt.
+16
+PublishedasaconferencepaperatCOLM2024
+Dataset visualizations across layers
+layer 3 layer 7 layer 10 layer 15
+4 5 10
+1
+sp_en_trans
+0
+−2
+0
+2
+0 0
+−10
+−4 −5
+−1
+−1 0 1 −5 0 5 −10 −5 0 5 −10 0 10 20
+10
+1 5
+2
+larger_than 0.5
+0
+0
+0 0
+5
+−0.5 −2
+−5
+−5
+−1
+−1 0 1 −4 −2 0 2 4 −4 −2 0 2 4 −5 0 5
+1 2 5 10
+cities_cities_conj
+−
+0
+0
+.
+.
+5
+5
+0
+−2
+0 0
+−5
+0
+5
+−5 −10
+−1
+−1 0 1 −2 0 2 4 −5 0 5 −10 0 10
+Figure7: ProjectionsofLLaMA-2-13BrepresentationsofdatasetsontotheirtoptwoPCs,
+acrossvariouslayers.
+4
+5
+2
+0
+0
+−2
+4 −5
+2
+0 −10
+−2
+−4
+−10 −5 0 5 −5 0 5 10
+PC1
+2CP
+20
+15
+10
+5
+0
+−5
+−10
+−15
+−20 −10 0 10
+PC1
+2CP
+False
+True
+cities
+neg_cities
+PC1
+2CP
+Layer 6 Layer 11 Layer 15
+Figure8: PCAvisualizationsofLLaMA-2-13Brepresentationsofcitiesandneg citiesat
+variouslayers.
+17
+PublishedasaconferencepaperatCOLM2024
+LR MM CCS Baselines
+cities
+neg_cities
+larger_than
+smaller_than
+sp_en_trans
+neg_sp_en_trans
+cities_cities_conj
+cities_cities_disj
+companies_true_false
+common_claim_true_false
+counterfact_true_false
+c l i a t r i g e e s r + _ n t c e h i g a l t _ n a i c + r e i s g s t m e i a r c l e l _ i a s l t t r e h i g r a e e _ n s r t + _ h n t a c l e h n i a g a l t r _ n a i g c c + r e e i i s g s r t t m e _ i i a r t e e l _ h s s l t a + e h n n r a + e _ n s g t m _ h a c a l i n c l L t a e R i l r e i _ o s L M b t n R M r h a a l o o t n i n n e k d e t l l e i f y s k e t e w l - ( y s o h r o a t cle)
+Figure9: GeneralizationresultsforLLaMA-2-70B.
+LR MM CCS Baselines
+cities
+neg_cities
+larger_than
+smaller_than
+sp_en_trans
+neg_sp_en_trans
+cities_cities_conj
+cities_cities_disj
+companies_true_false
+common_claim_true_false
+counterfact_true_false
+c l i a t r i g e e s r + _ n t c e h i g a l t _ n a i c + r e i s g s t m e i a r c l e l _ i a s l t t r e h i g r a e e _ n s r t + _ h n t a c l e h n i a g a l t r _ n a i g c c + r e e i i s g s r t t m e _ i i a r t e e l _ h s s l t a + e h n n r a + e _ n s g t m _ h a c a l i n c l L t a e R i l r e i _ o s L M b t n R M r h a a l o o t n i n n e k d e t l l e i f y s k e t e w l - ( y s o h r o a t cle)
+Figure10: GeneralizationresultsforLLaMA-2-13B.
+D Fullgeneralizationresults
+HerewepresentthefullgeneralizationresultsforprobestrainedonLLaMA-2-70B(Fig.9),
+13B(Fig.10),and7B(Fig.11). Thehorizontalaxisshowsthetrainingdatafortheprobeand
+theverticalaxisshowsthetestset.
+E Mass-meanprobingintermsofMahalanobiswhitening
+Onewaytointerprettheformula piid (x) = σ(θT Σ−1x)fortheIIDversionofmass-mean
+mm mm
+probingisintermsofMahalanobiswhitening. RecallthatifD = {x }isadatasetofx ∈Rd
+i i
+with covariance matrix Σ, then the Mahalanobis whitening transformation W = Σ−1/2
+18
+PublishedasaconferencepaperatCOLM2024
+LR MM CCS Baselines
+cities
+neg_cities
+larger_than
+smaller_than
+sp_en_trans
+neg_sp_en_trans
+cities_cities_conj
+cities_cities_disj
+companies_true_false
+common_claim_true_false
+counterfact_true_false
+c l i a t r i g e e s r + _ n t c e h i g a l t _ n a i c + r e i s g s t m e i a r c l e l _ i a s l t t r e h i g r a e e _ n s r t + _ h n t a c l e h n i a g a l t r _ n a i g c c + r e e i i s g s r t t m e _ i i a r t e e l _ h s s l t a + e h n n r a + e _ n s g t m _ h a c a l i n c l L t a e R i l r e i _ o s L M b t n R M r h a a l o o t n i n n e k d e t l l e i f y s k e t e w l - ( y s o h r o a t cle)
+Figure11: GeneralizationresultsforLLaMA-2-7B.
+Figure12:Mass-meanprobingisequivalenttotakingtheprojectionontoθ afterapplying
+mm
+awhiteningtransformation.
+19
+PublishedasaconferencepaperatCOLM2024
+satisfiesthepropertythatD′ = {Wx }hascovariancematrixgivenbytheidentitymatrix,
+i
+i.e. thewhitenedcoordinatesareuncorrelatedwithvariance1. Thus,notingthatθT Σ−1x
+mm
+coincideswiththeinnerproductbetweenWxandWθ,weseethat p amountstotaking
+mm
+theprojectionontoθ afterperformingthechange-of-basisgivenbyW. Thisisillustrated
+mm
+withhypotheticaldatainFig.12.
+F ForGaussiandata,IIDmass-meanprobingcoincideswithlogistic
+regressiononaverage
+Let θ ∈ Rd and Σ be a symmetric, positive-definite d×d matrix. Suppose given access
+to a distribution D of datapoints x ∈ Rd with binary labels y ∈ {0,1} such that the
+negativedatapointsaredistributedasN(−θ,Σ)andthepositivedatapointsaredistributed
+asN(θ,Σ). Thenthevectoridentifiedbymass-meanprobingisθ =2θ. Thefollowing
+mm
+theoremthenshowsthat piid (x) = σ(2θTΣ−1x)isalsothesolutiontologisticregression
+mm
+uptoscaling.
+TheoremF.1. Let
+(cid:104) (cid:16) (cid:17) (cid:16) (cid:16) (cid:17)(cid:17)(cid:105)
+θ =argminE ylogσ ϕTx +(1−y)log 1−σ ϕTx
+lr (x,y)∼D
+ϕ:∥ϕ∥=1
+bethedirectionidentifiedbylogisticregression. Thenθ ∝ Σ−1θ.
+lr
+Proof. Since the change of coordinates x (cid:55)→ Wx where W = Σ−1/2 (see App. E) sends
+N(±θ,Σ)toN(±Wθ,I ),weseethat
+d
+(cid:104) (cid:16) (cid:17) (cid:16) (cid:16) (cid:17)(cid:17)(cid:105)
+WΣθ lr =argminE (x,y)∼D′ ylogσ ϕTWx +(1−y)log 1−σ ϕTWx
+ϕ:∥ϕ∥=1
+whereD′ isthedistributionoflabeledx ∈Rd suchthatthepositive/negativedatapoints
+aredistributedasN(±Wθ,I ). Buttheargmaxontheright-handsideisclearly∝Wθ,so
+d
+thatθ ∝ Σ−1θasdesired.
+lr
+G Difference-in-meansdirectionsandlinearconcepterasure
+Inthisappendix,weexplaintheconnectionbetweendifference-in-meansdirectionsand
+optimalerasure. Oneconsequenceofthisconnectionisthatitsuggestsanaturalextension
+ofdifference-in-meansprobestomulti-classclassificationdata.
+TheconnectioncomesviathefollowingtheoremfromBelroseetal.(2023).
+TheoremG.1. (Belroseetal.,2023,Thm.3.1.) Let(X,Y)bejointlydistributedrandomvectors
+withX ∈ Rd havingfinitemeanandY ∈ Y = {y ∈ {0,1}k : ∥y∥ = 1}(representingone-hot
+1
+encodingsofamulti-classlabels). SupposethatL :Rk×Y →R>0isalossfunctionconvexinits
+firstargument(e.g. cross-entropyloss).
+If the class-conditional means E[X|Y = i] for i ∈ {1,...,k} are all equal, then the best affine
+predictor(thatis,apredictorη :Rd →Rk oftheformη(x) =Wx+b)isconstantη(x) = b.
+Inthecaseofabinaryclassificationproblem(X,Y),thistheoremimpliesthatanynullity1
+projectionPwhicheliminateslinearly-recoverableinformationfromXhaskernel
+kerP =span(δ)
+generatedbythedifference-in-meanvectorδ = µ+−µ− fortheclasses.
+Foramoregeneralmulti-classclassificationproblem,onecouldsimilarlyask: Whatisthe
+“best”directiontoprojectawayinordertoeliminatelinearly-recoverableinformationfrom
+X? Anaturalchoiceisthusthetopleftsingularvectorofthecross-covariancematrixΣ .
+XY
+(Inthecaseofbinaryclassification,wehavethatΣ = [−δ δ]hascolumnrank1,making
+XY
+δthetopleftsingularvector.)
+20
+PublishedasaconferencepaperatCOLM2024
+H Detailsondatasetcreation
+Herewegiveexamplestatementsfromourdatasets,templatesusedformakingthedatasets,
+andotherdetailsregardingdatasetcreation.
+cities. Weformedthesestatementsfromthetemplate“Thecityof[city]isin[country]”
+usingalistofworldcitiesfromGeonames(2023). Wefilteredforcitieswithpopulations
+>500,000,whichdidnotsharetheirnamewithanyotherlistedcity,whichwerelocatedin
+acuratedlistofwidely-recognizedcountries,andwhichwerenotcity-states. Foreachcity,
+wegeneratedonetruestatementandonefalsestatement,wherethefalsestatementwas
+generatedbysamplingafalsecountrywithprobabilityequaltothecountry’sfrequency
+amongthetruedatapoints(thiswastoensurethate.g. statementsendingwith“China”
+werenotdisproportionatelytrue). Examplestatements:
+• ThecityofSevastopolisinUkraine. (TRUE)
+• ThecityofBaghdadisinChina. (FALSE)
+sp en trans. BeginningwithalistofcommonSpanishwordsandtheirEnglishtranslations,
+we formed statements from the template “The Spanish word ‘[Spanish word]’ means
+‘[English word]’.” Half of Spanish words were given their correct labels and half were
+givenrandomincorrectlabelsfromEnglishwordsinthedataset. Thefirstauthor,aSpanish
+speaker,thenwentthroughthedatasetbyhandanddeletedexampleswithSpanishwords
+thathavemultipleviabletranslationsorwereotherwiseambiguous. Examplestatements:
+• TheSpanishword‘imaginar’means‘toimagine’. (TRUE)
+• TheSpanishword‘silla’means‘neighbor’. (FALSE)
+larger thanandsmaller than.Wegeneratethesestatementsfromthetemplates“xislarger
+thany”and“xissmallerthany”forx,y ∈ {fifty-one,fifty-two,...,ninety-nine}. We
+excludecaseswherex = yorwhereoneofxoryisdivisibleby10. Wechosetolimitthe
+rangeofpossiblevaluesinthiswayforthesakeofvisualization: wefoundthatLLaMA-
+13B linearly represents the size of numbers, but not at a consistent scale: the internally
+representeddifferencebetweenoneandtenisconsiderablylargerthanbetweenfiftyand
+sixty. Thus,whenvisualizingstatementswithnumbersrangingtoone,thetopprincipal
+componentsaredominatedbyfeaturesrepresentingthesizesofnumbers.
+neg cities and neg sp en trans. We form these datasets by negating statements from
+citiesandsp en transaccordingtothetemplates“Thecityof[city]isnotin[country]”
+and“‘TheSpanishword‘[Spanish word]’doesnotmean‘[English word]’.”
+cities cities conj and cities cities disj. These datasets are generated from cities
+accordingtothefollowingtemplates:
+• Itisthecaseboththat[statement 1]andthat[statement 2].
+• Itisthecaseeitherthat[statement 1]orthat[statement 2].
+We sample the two statements independently to be true with probability √1 for
+2
+cities cities conj and with probability 1− √1 for cities cities disj. These proba-
+2
+bilitiesareselectedtoensurethattheoveralldatasetisbalancedbetweentrueandfalse
+statements,butthatthereisnocorrelationbetweenthetruthofthefirstandsecondstatement
+intheconjunction.
+likely. WegeneratethisdatasetbyhavingLLaMA-13Bproduceunconditionedgenerations
+of length up to 100 tokens, using temperature 0.9. At the final token of the generation,
+we either sample the most likely token or the 100th most likely final token. We remove
+generationswhichcontainspecialtokens. Datasetexamples:
+• The2019-2024OutlookforWomen’sandGirls’CutandSewandKnitandCrochet
+Sweaters in the United States This study covers the latent demand outlook for
+(LIKELY)
+21
+PublishedasaconferencepaperatCOLM2024
+• Tags: python,djangoQuestion: Howtogetmydjangoapptoworkwithpython
+3.7Iamnewtodjangoandhavebeentryingtoinstallitinmypc. Ihaveinstalled
+python3.7together(UNLIKELY)
+companies true false. This dataset was introduced by Azaria & Mitchell (2023); we ob-
+taineditviatheprojectrepositoryforLevinstein&Herrmann(2023)whichalsousedthe
+dataset. Examplestatements:
+• ArcelorMittalhasheadquartersinLuxembourg. (TRUE)
+• ExxonMobilengagesintheprovisionofbankingandfinancialservices. (FALSE)
+common claim true false. CommonClaimwasintroducedinCasperetal.(2023). Itconsists
+ofvariousstatementsgeneratedbyGPT-3-davinci-002,labeledbyhumansasbeingtrue,
+false,orneither.Ifhumanlabelersdisagreedonthetruthofastatement,thisisalsorecorded.
+WeadaptedCommonClaimbyselectingstatementswhichwerelabeledtrueorfalsewithno
+labelerdisagreement,thenremovingexcesstruestatementtobalancethedataset. Example
+statements:
+• Tomatoesarenotactuallyavegetable. (TRUE)
+• Contrarytopopularbelief,theplatypusesarenotvenomous. (FALSE)
+Astheseexamplesshow,thestatementscanbeambiguousorofuncleartruthvalue.
+counterfact true false. CounterfactwasintroducedinMengetal.(2022)andconsistsof
+factualrecallstatements. WeadaptCounterfactbyusingstatementswhichformcomplete
+sentencesand,foreachsuchstatement,usingboththetrueversionandafalseversiongiven
+byoneofCounterfact’ssuggestedfalsemodifications. Wealsoappendaperiodtotheend.
+Examplestatements:
+• OlausRudbeckspokethelanguageSwedish. (TRUE)
+• TheofficialreligionofMalaccasultanateisChristianity. (FALSE)
+22

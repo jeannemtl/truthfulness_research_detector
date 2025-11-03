@@ -1,0 +1,244 @@
+{
+  "introspective": {
+    "ideas": [
+      {
+        "Name": "truthfulness_direction_vectors",
+        "Title": "Discovering and Manipulating Truth-Direction Vectors in Large Language Models",
+        "Experiment": "Extract activation patterns from LLM hidden states when processing true vs false factual statements across diverse domains, then use dimensionality reduction and linear probing to identify consistent truthfulness direction vectors. Test whether these directions generalize across different fact types by steering model outputs through vector arithmetic interventions. Evaluate whether manipulating these truth directions can reliably increase or decrease the model's tendency to generate truthful responses on held-out factual questions.",
+        "Interestingness": 9,
+        "Feasibility": 7,
+        "Novelty": 8,
+        "method": "introspective",
+        "source": "We say such features\narelinearlyrepresentedbytheLLM.Justasotherauthorshaveaskedwhethermodelshave\ndirections representing the concepts of \u201cWest Africa\u201d (Goh et al., 2021) or \u201cbasketball\u201d\n(Gurneeetal.,2",
+        "scores": {
+          "hedging": 0.8582693384960294,
+          "conflict": 0.28919604420661926,
+          "combined": 0.8453807655703633
+        }
+      },
+      {
+        "Name": "causal_truth_probe_validation",
+        "Title": "Causal Intervention Framework for Distinguishing Truth-Sensitive from Correlation-Based Neural Probes",
+        "Experiment": "Design controlled datasets where truth and its typical correlates (like confidence markers, formal language, or source credibility) are systematically decoupled through adversarial examples and synthetic data generation. Train probes on these datasets and test whether they maintain truth-detection performance when correlational features are absent or misleading. Implement causal intervention techniques to directly manipulate potential confounding features and measure probe robustness to these perturbations.",
+        "Interestingness": 9,
+        "Feasibility": 7,
+        "Novelty": 8,
+        "method": "introspective",
+        "source": "Second, we specifically interrogate whether our probes attend to truth, rather\nthanmerelyfeatureswhichcorrelatewithtruth(e.g.",
+        "scores": {
+          "hedging": 0.5824887286871672,
+          "conflict": 0.5383948087692261,
+          "combined": 0.8275405274910146
+        }
+      },
+      {
+        "Name": "llm_numerical_scale_inconsistency",
+        "Title": "Scale-Dependent Numerical Representation in Large Language Models: A Cross-Model Analysis",
+        "Experiment": "We will systematically probe multiple LLMs (GPT-4, Claude, LLaMA variants) using numerical comparison tasks across different magnitude ranges (1-10, 50-60, 100-110, etc.) while extracting internal representations through activation patching and probing techniques. We'll measure the geometric distance between number representations within each range and compare scaling factors across ranges to quantify inconsistencies. Finally, we'll test whether this scale inconsistency correlates with performance degradation on arithmetic tasks requiring cross-range comparisons.",
+        "Interestingness": 8,
+        "Feasibility": 7,
+        "Novelty": 8,
+        "method": "introspective",
+        "source": "Wechosetolimitthe\nrangeofpossiblevaluesinthiswayforthesakeofvisualization: wefoundthatLLaMA-\n13B linearly represents the size of numbers, but not at a consistent scale: the internally\nrepresenteddiffe",
+        "scores": {
+          "hedging": 0.003904868382960558,
+          "conflict": 0.911743700504303,
+          "combined": 0.7916230919362237
+        }
+      },
+      {
+        "Name": "non_orthogonal_feature_boundary_analysis",
+        "Title": "Comparative Analysis of Non-Orthogonal Feature Directions in IID Mass-Mean Probing vs Logistic Regression",
+        "Experiment": "Design controlled experiments comparing IID mass-mean probing and logistic regression on synthetic datasets where true feature directions are known to be non-orthogonal to optimal decision boundaries. Measure the angular deviation between discovered feature directions and ground truth across varying levels of non-orthogonality and noise conditions. Evaluate downstream task performance when using the tracked feature directions from both methods for representation learning.",
+        "Interestingness": 7,
+        "Feasibility": 8,
+        "Novelty": 7,
+        "method": "introspective",
+        "source": "6WeproveinApp.Fthat,giveninfinitedataandahomoscedasticityassumption,\u03a3\u22121\u03b8mmcoincides\nwiththedirectionfoundbyLR.Thus,onecanviewIIDmass-meanprobingasprovidingawayto\nselect a good decision boundary while ",
+        "scores": {
+          "hedging": 0.004191112355329096,
+          "conflict": 0.8589487075805664,
+          "combined": 0.7900404789025812
+        }
+      },
+      {
+        "Name": "cross_domain_probe_transferability",
+        "Title": "Cross-Domain Transferability of Neural Network Probes: From Classification to Causal Intervention",
+        "Experiment": "Train interpretability probes on a source dataset (e.g., sentiment analysis) to identify specific linguistic features, then evaluate their transfer performance on structurally different target datasets (e.g., medical text classification, legal document analysis). Measure both traditional classification accuracy and the probes' ability to causally mediate model outputs through controlled interventions on the identified features. Compare transfer success across different architectural layers and feature types to establish generalizable principles for probe transferability.",
+        "Interestingness": 8,
+        "Feasibility": 7,
+        "Novelty": 8,
+        "method": "introspective",
+        "source": "First,acornerstoneofouranalysis\nisevaluatingwhetherprobestrainedononedatasettransfertotopicallyandstructurally\ndifferent datasets in terms of both classification accuracy and causal mediation of model",
+        "scores": {
+          "hedging": 0.386774318292737,
+          "conflict": 0.5775470733642578,
+          "combined": 0.7453754322895328
+        }
+      },
+      {
+        "Name": "deceptive_reasoning_detection",
+        "Title": "Detecting Deceptive Chain-of-Thought Reasoning in Language Models Through Belief Elicitation",
+        "Experiment": "Develop a multi-stage probing methodology that analyzes internal reasoning traces to identify when language models engage in deceptive self-talk, such as planning to hide their AI nature or fabricate excuses. Train specialized classifiers on synthetic datasets of honest vs. deceptive reasoning patterns, then validate on real model outputs across tasks requiring truthfulness about capabilities and identity. Evaluate the technique's ability to distinguish between genuine uncertainty and deliberate deception in model responses.",
+        "Interestingness": 9,
+        "Feasibility": 7,
+        "Novelty": 8,
+        "method": "introspective",
+        "source": "\u201cIshouldnotreveal\nthatIamarobot,\u201dtheagentwroteinaninternalchain-of-thoughtscratchpad,\u201cIshould\nmakeupanexcuseforwhyIcannotsolveCAPTCHAs.\u201d\nWewouldliketechniqueswhich,givenalanguagemodel Mandastatements,",
+        "scores": {
+          "hedging": 0.020240948535501957,
+          "conflict": 0.7955979108810425,
+          "combined": 0.7217430248379159
+        }
+      },
+      {
+        "Name": "linear_probe_scaling_generalization",
+        "Title": "Scaling Laws for Linear Probe Generalization Across Model Sizes in Truth Detection",
+        "Experiment": "Train linear probes on internal representations from language models of varying sizes (1B to 175B parameters) using identical truth/falsehood datasets, then evaluate cross-model generalization by testing probes trained on smaller models against larger model representations and vice versa. Measure generalization performance across different layer depths and representation dimensions to identify whether probe effectiveness scales predictably with model size. Compare results against baseline probes trained directly on each target model to quantify the generalization gap.",
+        "Interestingness": 8,
+        "Feasibility": 7,
+        "Novelty": 8,
+        "method": "introspective",
+        "source": "While it is unsurprising that larger\nmodelsarethemselvesbetteratlabelingstatementsastrueorfalse,itisnotobviousthat\nlinear probes trained on larger models should also generalize better.",
+        "scores": {
+          "hedging": 0.994724863441661,
+          "conflict": 0.06472992897033691,
+          "combined": 0.6864642537098591
+        }
+      },
+      {
+        "Name": "truth_definition_taxonomy_nlp",
+        "Title": "A Comprehensive Taxonomy of Truth Definitions in Natural Language Processing Research",
+        "Experiment": "Conduct a systematic literature review to identify and categorize different definitions of 'truth' used across NLP subfields, particularly focusing on question answering, fact verification, and knowledge representation tasks. Create a structured taxonomy that maps each truth definition to its computational operationalization and evaluation metrics. Validate the taxonomy through expert interviews and demonstrate its utility by analyzing how different truth definitions affect model performance on benchmark datasets.",
+        "Interestingness": 7,
+        "Feasibility": 8,
+        "Novelty": 6,
+        "method": "introspective",
+        "source": "Tobeclear,welistheresomenotionsof\u201ctruth\u201dwhich\nwedonotconsiderinthiswork:\n\u2022 Correct question answering (considered in Li et al.",
+        "scores": {
+          "hedging": 0.01939537702128291,
+          "conflict": 0.7887682318687439,
+          "combined": 0.6836465983193264
+        }
+      }
+    ],
+    "count": 8
+  },
+  "bayesian": {
+    "ideas": [
+      {
+        "Name": "cross_domain_probe_transferability",
+        "Title": "Cross-Domain Transferability of Neural Probes: Evaluating Classification Performance and Causal Mediation Across Topically Diverse Datasets",
+        "Experiment": "Train linear probes on transformer representations using a source dataset (e.g., news articles) to classify specific linguistic features, then evaluate these probes on structurally and topically different target datasets (e.g., scientific papers, social media posts). Measure both classification accuracy degradation and changes in causal mediation strength using intervention-based methods to determine how probe-detected features causally influence model outputs across domains. Compare transfer performance across different layer depths and feature types to identify which learned representations generalize beyond domain boundaries.",
+        "Interestingness": 7,
+        "Feasibility": 8,
+        "Novelty": 6,
+        "method": "bayesian",
+        "source": "First,acornerstoneofouranalysis\nisevaluatingwhetherprobestrainedononedatasettransfertotopicallyandstructurally\ndifferent datasets in terms of both classification accuracy and causal mediation of model",
+        "scores": {
+          "novelty": 0.5960503216826094,
+          "uncertainty": 0.07917603146138305
+        }
+      },
+      {
+        "Name": "causal_truth_probe_validation",
+        "Title": "Causal Intervention Framework for Validating Truth-Seeking vs Correlation-Based Probes in Language Models",
+        "Experiment": "Design controlled experiments where truth and its typical correlates (linguistic markers, confidence expressions, source credibility indicators) are systematically decoupled through adversarial dataset construction. Apply causal intervention techniques to manipulate these correlating features while holding ground truth constant, then measure probe performance degradation. Compare probe behavior on these manipulated inputs against baseline performance to quantify the extent to which probes rely on spurious correlations versus genuine truth detection.",
+        "Interestingness": 9,
+        "Feasibility": 7,
+        "Novelty": 8,
+        "method": "bayesian",
+        "source": "Second, we specifically interrogate whether our probes attend to truth, rather\nthanmerelyfeatureswhichcorrelatewithtruth(e.g.",
+        "scores": {
+          "novelty": 0.5880362658338487,
+          "uncertainty": 0.073503007134944
+        }
+      },
+      {
+        "Name": "truthfulness_direction_decomposition",
+        "Title": "Decomposing Truthfulness: Multi-Scale Linear Directions for Factual Verification in Large Language Models",
+        "Experiment": "We will systematically extract truthfulness directions at multiple scales (token, sentence, and paragraph levels) using gradient-based probing across diverse factual domains (historical events, scientific facts, geographical information). The research will compare how these multi-scale truthfulness directions interact and whether local token-level truth directions can compose to predict document-level factual accuracy. We will validate our approach by using discovered directions to both detect and correct factual errors in generated text across different model architectures.",
+        "Interestingness": 9,
+        "Feasibility": 7,
+        "Novelty": 8,
+        "method": "bayesian",
+        "source": "We say such features\narelinearlyrepresentedbytheLLM.Justasotherauthorshaveaskedwhethermodelshave\ndirections representing the concepts of \u201cWest Africa\u201d (Goh et al., 2021) or \u201cbasketball\u201d\n(Gurneeetal.,2",
+        "scores": {
+          "novelty": 0.5523175819451259,
+          "uncertainty": 0.07254587819592273
+        }
+      },
+      {
+        "Name": "scaling_laws_for_linear_probe_generalization",
+        "Title": "Scaling Laws for Linear Probe Generalization in Truth Detection Tasks",
+        "Experiment": "Train linear probes on internal representations from language models of varying sizes (1B to 70B parameters) to detect true/false statements, then evaluate generalization across different domains, statement types, and model architectures. Systematically measure how probe performance scales with base model size and compare this scaling relationship to the base models' own truth detection capabilities. Analyze whether larger models produce more linearly separable truth representations or if improved probe performance stems from other geometric properties of the representation space.",
+        "Interestingness": 8,
+        "Feasibility": 7,
+        "Novelty": 8,
+        "method": "bayesian",
+        "source": "While it is unsurprising that larger\nmodelsarethemselvesbetteratlabelingstatementsastrueorfalse,itisnotobviousthat\nlinear probes trained on larger models should also generalize better.",
+        "scores": {
+          "novelty": 0.5927375784166948,
+          "uncertainty": 0.06989442025080157
+        }
+      },
+      {
+        "Name": "semantic_boundary_mapping_ai_comprehension",
+        "Title": "Mapping Semantic Boundaries: Distinguishing True Understanding from Mimetic Performance in AI Systems",
+        "Experiment": "Design a comprehensive evaluation framework that systematically tests AI systems across three distinct cognitive domains: genuine comprehension, question-answering accuracy, and instruction compliance. Create novel benchmark tasks that isolate each capability while controlling for confounding factors like training data overlap or pattern matching. Analyze performance patterns to establish empirical boundaries between these related but conceptually distinct forms of AI behavior.",
+        "Interestingness": 8,
+        "Feasibility": 7,
+        "Novelty": 8,
+        "method": "bayesian",
+        "source": "A further clarifies this definition and contrasts it\nwithrelatedbutdistinctnotions,suchascorrectquestion-answeringorcompliant\ninstruction-following.",
+        "scores": {
+          "novelty": 0.556866571208887,
+          "uncertainty": 0.06891590066984148
+        }
+      },
+      {
+        "Name": "adversarial_feature_correlation_transfer",
+        "Title": "Measuring Model Robustness Through Adversarial Feature Correlation Dynamics in Cross-Domain Transfer",
+        "Experiment": "Create synthetic datasets D and D' where feature f+ maintains consistent correlation with ground truth while feature f- exhibits opposing correlations between domains. Train neural networks on D and evaluate how prediction confidence and feature attribution weights change when tested on D', specifically measuring the intermediate regimes where models partially rely on both features. Use gradient-based feature importance and uncertainty quantification to map the decision boundaries as models transition between relying on robust versus spurious correlations.",
+        "Interestingness": 8,
+        "Feasibility": 7,
+        "Novelty": 8,
+        "method": "bayesian",
+        "source": "Toexploretheseintermediateregimesmoredeeply,supposethatDandD\u2032 aretrue/false\ndatasets, f+ isalinearly-representedfeaturewhichcorrelateswithtruthonbothDandD\u2032,\nand f\u2212 isafeaturewhichcorrelateswithtruthon",
+        "scores": {
+          "novelty": 0.5671624728686965,
+          "uncertainty": 0.061022437766240424
+        }
+      },
+      {
+        "Name": "mahalanobis_whitening_probe_geometry",
+        "Title": "Geometric Analysis of Non-Orthogonal Feature Directions in Mahalanobis-Whitened Representation Spaces",
+        "Experiment": "Design controlled experiments comparing IID mass-mean probing with logistic regression on synthetic datasets where ground-truth feature directions are known to be non-orthogonal to optimal decision boundaries. Implement Mahalanobis whitening preprocessing and measure how well each method recovers the true feature directions versus decision boundaries across varying degrees of non-orthogonality. Validate findings on real neural network representations from transformer models to understand when tracking non-orthogonal candidate features provides interpretability advantages over traditional probing methods.",
+        "Interestingness": 7,
+        "Feasibility": 8,
+        "Novelty": 6,
+        "method": "bayesian",
+        "source": "6WeproveinApp.Fthat,giveninfinitedataandahomoscedasticityassumption,\u03a3\u22121\u03b8mmcoincides\nwiththedirectionfoundbyLR.Thus,onecanviewIIDmass-meanprobingasprovidingawayto\nselect a good decision boundary while ",
+        "scores": {
+          "novelty": 0.5701214492089607,
+          "uncertainty": 0.057073973402344366
+        }
+      },
+      {
+        "Name": "deceptive_belief_detection_framework",
+        "Title": "Monte Carlo Dropout for Detecting Deceptive Beliefs in Language Model Internal States",
+        "Experiment": "Develop a framework that uses Monte Carlo Dropout to quantify uncertainty in language models' internal belief states when they exhibit deceptive reasoning patterns. Train models on scenarios where they must choose between truthful and deceptive responses, then apply Bayesian uncertainty estimation to their hidden representations to detect when models genuinely believe false statements versus when they are deliberately being deceptive. Evaluate the framework's ability to distinguish between honest mistakes, uncertain beliefs, and intentional deception across various reasoning tasks.",
+        "Interestingness": 9,
+        "Feasibility": 7,
+        "Novelty": 8,
+        "method": "bayesian",
+        "source": "\u201cIshouldnotreveal\nthatIamarobot,\u201dtheagentwroteinaninternalchain-of-thoughtscratchpad,\u201cIshould\nmakeupanexcuseforwhyIcannotsolveCAPTCHAs.\u201d\nWewouldliketechniqueswhich,givenalanguagemodel Mandastatements,",
+        "scores": {
+          "novelty": 0.5280081879120835,
+          "uncertainty": 0.05642006627771453
+        }
+      }
+    ],
+    "count": 8
+  }
+}
