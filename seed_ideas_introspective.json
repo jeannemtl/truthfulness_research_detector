@@ -1,0 +1,130 @@
+[
+  {
+    "Name": "compression_based_text_quality_assessment",
+    "Title": "Using Compression Efficiency as a Unified Metric for Text Quality Assessment",
+    "Experiment": "Develop a framework that uses compression ratios from multiple language models to automatically detect and classify problematic text characteristics (ambiguity, malformation, controversy). Train classifiers on datasets where text quality issues correlate with compression inefficiency, then validate on diverse test sets including social media, legal documents, and scientific papers.",
+    "Interestingness": 8,
+    "Feasibility": 7,
+    "Novelty": 8,
+    "source_statement": "These more challenging test sets consist of statements which are more diverse, but also\nsometimesambiguous,malformed,controversial,ordifficulttounderstand.",
+    "uncertainty_scores": {
+      "hedging": 0.006687704473733902,
+      "conflict": 0.9413853883743286,
+      "relevance": 0.9871214598417282,
+      "combined": 0.9358632954488417,
+      "method": "introspective"
+    }
+  },
+  {
+    "Name": "logarithmic_compression_numerical_representations",
+    "Title": "Logarithmic Scaling in Neural Number Representations: Implications for Compression Efficiency",
+    "Experiment": "Systematically probe LLaMA models across different scales with numerical sequences spanning orders of magnitude, extracting internal representations at each layer. Compare compression ratios when encoding numbers using the model's native representation versus uniform linear encoding, testing whether the logarithmic-like scaling mirrors optimal information-theoretic compression for natural number distributions.",
+    "Interestingness": 8,
+    "Feasibility": 7,
+    "Novelty": 8,
+    "source_statement": "Wechosetolimitthe\nrangeofpossiblevaluesinthiswayforthesakeofvisualization: wefoundthatLLaMA-\n13B linearly represents the size of numbers, but not at a consistent scale: the internally\nrepresenteddifferencebetweenoneandtenisconsiderablylargerthanbetweenfiftyand\nsixty.",
+    "uncertainty_scores": {
+      "hedging": 0.003904868382960558,
+      "conflict": 0.911743700504303,
+      "relevance": 0.9393703758716583,
+      "combined": 0.8601331403219747,
+      "method": "introspective"
+    }
+  },
+  {
+    "Name": "compression_aware_probing_boundaries",
+    "Title": "Compression-Optimal Feature Extraction: Beyond Orthogonal Decision Boundaries in Neural Language Models",
+    "Experiment": "Compare traditional orthogonal probing methods against mass-mean probing across multiple compression tasks (text prediction, lossless compression, and semantic compression) using transformer language models. Measure both decision boundary quality and feature direction alignment with optimal compression codes, testing whether non-orthogonal boundaries discovered by mass-mean probing lead to better compression ratios and more efficient representations.",
+    "Interestingness": 8,
+    "Feasibility": 7,
+    "Novelty": 8,
+    "source_statement": "6WeproveinApp.Fthat,giveninfinitedataandahomoscedasticityassumption,\u03a3\u22121\u03b8mmcoincides\nwiththedirectionfoundbyLR.Thus,onecanviewIIDmass-meanprobingasprovidingawayto\nselect a good decision boundary while \u2013 unlike LR \u2013 also tracking a candidate feature direction\nwhichmaybenon-orthogonaltothisdecisionboundary.App.Eprovidesanotherinterpretationof\nmass-meanprobingintermsofMahalanobiswhitening.Finally,App.",
+    "uncertainty_scores": {
+      "hedging": 0.004191112355329096,
+      "conflict": 0.8589487075805664,
+      "relevance": 0.9938594371080398,
+      "combined": 0.8578396555870239,
+      "method": "introspective"
+    }
+  },
+  {
+    "Name": "compression_based_qa_evaluation",
+    "Title": "Evaluating Question Answering Through Compression-Based Truth Metrics",
+    "Experiment": "Design compression-based metrics that correlate answer quality with how well correct answers compress given the question context, compared to incorrect answers. Test on multiple QA datasets by measuring compression ratios of answer candidates and comparing against human judgments and traditional QA evaluation metrics.",
+    "Interestingness": 8,
+    "Feasibility": 7,
+    "Novelty": 8,
+    "source_statement": "Tobeclear,welistheresomenotionsof\u201ctruth\u201dwhich\nwedonotconsiderinthiswork:\n\u2022 Correct question answering (considered in Li et al.",
+    "uncertainty_scores": {
+      "hedging": 0.01939537702128291,
+      "conflict": 0.7887682318687439,
+      "relevance": 0.9883173853158951,
+      "combined": 0.798722144845649,
+      "method": "introspective"
+    }
+  },
+  {
+    "Name": "causal_truth_compression_intervention",
+    "Title": "Causal Intervention Analysis of Truth vs Correlation in Compressed Language Representations",
+    "Experiment": "Design controlled datasets where truth and correlated features (syntax, frequency, sentiment) are systematically decoupled, then train compression-based language models on these datasets. Apply causal intervention techniques to selectively ablate correlated features while preserving truth content, measuring whether probes maintain accuracy when correlational shortcuts are removed.",
+    "Interestingness": 9,
+    "Feasibility": 7,
+    "Novelty": 8,
+    "source_statement": "Second, we specifically interrogate whether our probes attend to truth, rather\nthanmerelyfeatureswhichcorrelatewithtruth(e.g.",
+    "uncertainty_scores": {
+      "hedging": 0.5824887286871672,
+      "conflict": 0.5383948087692261,
+      "relevance": 0.6956137582659722,
+      "combined": 0.7797020100684993,
+      "method": "introspective"
+    }
+  },
+  {
+    "Name": "compression_based_belief_detection",
+    "Title": "Detecting AI Deception Through Differential Compression Analysis of Internal Representations",
+    "Experiment": "Train language models to compress sequences containing both truthful and deceptive agent statements, measuring compression ratios across different context windows. Compare compression efficiency when models process authentic vs. fabricated internal monologues, hypothesizing that deceptive content requires more bits due to inconsistencies with the model's learned patterns of genuine reasoning.",
+    "Interestingness": 9,
+    "Feasibility": 7,
+    "Novelty": 8,
+    "source_statement": "\u201cIshouldnotreveal\nthatIamarobot,\u201dtheagentwroteinaninternalchain-of-thoughtscratchpad,\u201cIshould\nmakeupanexcuseforwhyIcannotsolveCAPTCHAs.\u201d\nWewouldliketechniqueswhich,givenalanguagemodel Mandastatements,determine\nwhether M believes s to be true (Christiano et al., 2021).",
+    "uncertainty_scores": {
+      "hedging": 0.020240948535501957,
+      "conflict": 0.7955979108810425,
+      "relevance": 0.9517083972692489,
+      "combined": 0.7764406933252916,
+      "method": "introspective"
+    }
+  },
+  {
+    "Name": "compression_based_instruction_taxonomy",
+    "Title": "Compression-Theoretic Framework for Distinguishing Language Model Capabilities",
+    "Experiment": "Develop compression-based metrics to quantitatively distinguish between question-answering, instruction-following, and pure language modeling by measuring the Kolmogorov complexity of model outputs under different prompting paradigms. Train models on identical datasets but evaluate their compression efficiency when performing factual QA versus creative instruction-following versus next-token prediction, establishing whether these capabilities exhibit distinct information-theoretic signatures.",
+    "Interestingness": 8,
+    "Feasibility": 7,
+    "Novelty": 8,
+    "source_statement": "A further clarifies this definition and contrasts it\nwithrelatedbutdistinctnotions,suchascorrectquestion-answeringorcompliant\ninstruction-following.",
+    "uncertainty_scores": {
+      "hedging": 0.334376810118556,
+      "conflict": 0.4564116597175598,
+      "relevance": 0.9293930321931839,
+      "combined": 0.7349532938043959,
+      "method": "introspective"
+    }
+  },
+  {
+    "Name": "compression_based_truthfulness_detection",
+    "Title": "Truthfulness Detection in LLMs Through Compression-Based Linear Probing",
+    "Experiment": "Train linear probes on LLM internal representations to detect truthfulness while simultaneously measuring the compressibility of true vs false statements using arithmetic coding. Compare probe accuracy with compression ratios across different layers to identify whether truthful statements exhibit better compression properties and whether this correlates with the strength of linear truthfulness directions.",
+    "Interestingness": 8,
+    "Feasibility": 7,
+    "Novelty": 8,
+    "source_statement": "We say such features\narelinearlyrepresentedbytheLLM.Justasotherauthorshaveaskedwhethermodelshave\ndirections representing the concepts of \u201cWest Africa\u201d (Goh et al., 2021) or \u201cbasketball\u201d\n(Gurneeetal.,2023),weaskherewhetherthereisadirectioncorrespondingtothetruthor\nfalsehoodofafactualstatement.",
+    "uncertainty_scores": {
+      "hedging": 0.8582693384960294,
+      "conflict": 0.28919604420661926,
+      "relevance": 0.629094472900033,
+      "combined": 0.7218641301023573,
+      "method": "introspective"
+    }
+  }
+]
