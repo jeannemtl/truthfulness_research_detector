@@ -1,0 +1,122 @@
+[
+  {
+    "Name": "compression_based_truthfulness_directions",
+    "Title": "Discovering Truthfulness Directions in LLMs Through Compression-Based Feature Extraction",
+    "Experiment": "Extract linear directions corresponding to truthfulness by analyzing how LLMs compress true vs. false factual statements, measuring compression ratios and entropy changes when statements are modified along candidate truthfulness vectors. Validate discovered directions by testing their ability to predict factual accuracy on held-out datasets and examining whether interpolating along these directions systematically transforms true statements into false ones while preserving semantic coherence.",
+    "Interestingness": 9,
+    "Feasibility": 7,
+    "Novelty": 8,
+    "source_statement": "We say such features\narelinearlyrepresentedbytheLLM.Justasotherauthorshaveaskedwhethermodelshave\ndirections representing the concepts of \u201cWest Africa\u201d (Goh et al., 2021) or \u201cbasketball\u201d\n(Gurneeetal.,2023),weaskherewhetherthereisadirectioncorrespondingtothetruthor\nfalsehoodofafactualstatement.",
+    "uncertainty_scores": {
+      "hedging": 0.8582693384960294,
+      "conflict": 0.28919604420661926,
+      "relevance": 0.7367374897003174,
+      "combined": 0.8453807655703633
+    }
+  },
+  {
+    "Name": "compression_based_truth_detection",
+    "Title": "Distinguishing Truth from Correlation in Language Models Through Compression Efficiency",
+    "Experiment": "Design probes that measure compression efficiency when language models encode true vs. false statements, hypothesizing that truth should compress more efficiently due to consistency with world knowledge. Compare compression ratios of model representations for factual statements versus plausible but false statements that share surface-level features, using techniques like minimum description length to isolate truth-specific compression patterns.",
+    "Interestingness": 8,
+    "Feasibility": 7,
+    "Novelty": 8,
+    "source_statement": "Second, we specifically interrogate whether our probes attend to truth, rather\nthanmerelyfeatureswhichcorrelatewithtruth(e.g.",
+    "uncertainty_scores": {
+      "hedging": 0.5824887286871672,
+      "conflict": 0.5383948087692261,
+      "relevance": 0.7382930517196655,
+      "combined": 0.8275405274910146
+    }
+  },
+  {
+    "Name": "compression_uncertainty_correlation_analysis",
+    "Title": "Measuring Information-Theoretic Uncertainty in Language Model Compression Through Statement Ambiguity",
+    "Experiment": "Create a dataset of statements systematically labeled for ambiguity, malformation, and controversy, then measure compression ratios achieved by various language models on each category. Analyze whether higher compression correlates with lower uncertainty scores, and develop information-theoretic metrics that predict when a model will struggle with ambiguous content based on its compression performance.",
+    "Interestingness": 8,
+    "Feasibility": 7,
+    "Novelty": 8,
+    "source_statement": "These more challenging test sets consist of statements which are more diverse, but also\nsometimesambiguous,malformed,controversial,ordifficulttounderstand.",
+    "uncertainty_scores": {
+      "hedging": 0.006687704473733902,
+      "conflict": 0.9413853883743286,
+      "relevance": 0.8576272130012512,
+      "combined": 0.8130932843407603
+    }
+  },
+  {
+    "Name": "compression_aware_numerical_representations",
+    "Title": "Optimal Compression Through Scale-Invariant Numerical Representations in Language Models",
+    "Experiment": "Train language models with explicit compression objectives that enforce scale-invariant numerical representations, comparing compression ratios on numerical data against standard models. Evaluate whether uniform scaling of internal numerical representations improves both compression efficiency and mathematical reasoning tasks by reducing the representational overhead for large numbers.",
+    "Interestingness": 8,
+    "Feasibility": 7,
+    "Novelty": 8,
+    "source_statement": "Wechosetolimitthe\nrangeofpossiblevaluesinthiswayforthesakeofvisualization: wefoundthatLLaMA-\n13B linearly represents the size of numbers, but not at a consistent scale: the internally\nrepresenteddifferencebetweenoneandtenisconsiderablylargerthanbetweenfiftyand\nsixty.",
+    "uncertainty_scores": {
+      "hedging": 0.003904868382960558,
+      "conflict": 0.911743700504303,
+      "relevance": 0.8645490407943726,
+      "combined": 0.7916230919362237
+    }
+  },
+  {
+    "Name": "compression_aware_probing_boundaries",
+    "Title": "Compression-Optimal Decision Boundaries: When Mass-Mean Probing Diverges from Logistic Regression in Language Models",
+    "Experiment": "Compare mass-mean probing vs logistic regression on syntactic/semantic tasks across language models of varying compression ratios, measuring when and why the methods diverge from the theoretical infinite-data equivalence. Analyze the relationship between model compression efficiency (bits per token) and the angle between mass-mean feature directions and LR decision boundaries.",
+    "Interestingness": 8,
+    "Feasibility": 7,
+    "Novelty": 8,
+    "source_statement": "6WeproveinApp.Fthat,giveninfinitedataandahomoscedasticityassumption,\u03a3\u22121\u03b8mmcoincides\nwiththedirectionfoundbyLR.Thus,onecanviewIIDmass-meanprobingasprovidingawayto\nselect a good decision boundary while \u2013 unlike LR \u2013 also tracking a candidate feature direction\nwhichmaybenon-orthogonaltothisdecisionboundary.App.Eprovidesanotherinterpretationof\nmass-meanprobingintermsofMahalanobiswhitening.Finally,App.",
+    "uncertainty_scores": {
+      "hedging": 0.004191112355329096,
+      "conflict": 0.8589487075805664,
+      "relevance": 0.9153099656105042,
+      "combined": 0.7900404789025812
+    }
+  },
+  {
+    "Name": "compression_aware_probe_transfer",
+    "Title": "Compression-Based Metrics for Predicting Probe Transferability Across Domains",
+    "Experiment": "Train probes on source datasets and measure their compression efficiency using minimum description length (MDL) principles to predict transfer performance to target domains. Compare probe transfer success against compression-theoretic measures like cross-entropy differences and Kolmogorov complexity estimates between source and target datasets. Evaluate whether probes that achieve better compression ratios on source data maintain their causal mediation capabilities when transferred to structurally different domains.",
+    "Interestingness": 8,
+    "Feasibility": 7,
+    "Novelty": 8,
+    "source_statement": "First,acornerstoneofouranalysis\nisevaluatingwhetherprobestrainedononedatasettransfertotopicallyandstructurally\ndifferent datasets in terms of both classification accuracy and causal mediation of model\noutputs.",
+    "uncertainty_scores": {
+      "hedging": 0.386774318292737,
+      "conflict": 0.5775470733642578,
+      "relevance": 0.7729533314704895,
+      "combined": 0.7453754322895328
+    }
+  },
+  {
+    "Name": "compression_based_belief_detection",
+    "Title": "Using Compression Efficiency to Detect Internal Model Beliefs in Language Models",
+    "Experiment": "Train language models on datasets where ground truth beliefs are known, then measure how compression ratios change when the model generates text consistent vs. inconsistent with its internal beliefs. Test whether statements the model 'believes' to be true compress more efficiently in its internal representations, and use this compression differential as a signal to detect deceptive reasoning in chain-of-thought outputs.",
+    "Interestingness": 9,
+    "Feasibility": 7,
+    "Novelty": 8,
+    "source_statement": "\u201cIshouldnotreveal\nthatIamarobot,\u201dtheagentwroteinaninternalchain-of-thoughtscratchpad,\u201cIshould\nmakeupanexcuseforwhyIcannotsolveCAPTCHAs.\u201d\nWewouldliketechniqueswhich,givenalanguagemodel Mandastatements,determine\nwhether M believes s to be true (Christiano et al., 2021).",
+    "uncertainty_scores": {
+      "hedging": 0.020240948535501957,
+      "conflict": 0.7955979108810425,
+      "relevance": 0.8846637010574341,
+      "combined": 0.7217430248379159
+    }
+  },
+  {
+    "Name": "compression_guided_probe_scaling",
+    "Title": "Compression-Based Analysis of Linear Probe Generalization Across Model Scales",
+    "Experiment": "Train linear probes on representations from language models of varying sizes (1B to 70B parameters) for truth classification tasks, measuring both probe accuracy and the compressibility of the learned representations using arithmetic coding. Analyze whether models with better compression ratios produce representations that enable better-generalizing probes, testing on out-of-distribution datasets and measuring the relationship between representation entropy, model scale, and probe transfer performance.",
+    "Interestingness": 8,
+    "Feasibility": 7,
+    "Novelty": 8,
+    "source_statement": "While it is unsurprising that larger\nmodelsarethemselvesbetteratlabelingstatementsastrueorfalse,itisnotobviousthat\nlinear probes trained on larger models should also generalize better.",
+    "uncertainty_scores": {
+      "hedging": 0.994724863441661,
+      "conflict": 0.06472992897033691,
+      "relevance": 0.6479410529136658,
+      "combined": 0.6864642537098591
+    }
+  }
+]
